@@ -1,0 +1,4 @@
+build/*.o
+lib/pc/*
+lib/pi/*
+!/lib/**/.gitkeep
