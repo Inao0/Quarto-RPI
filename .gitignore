@@ -1,4 +1,4 @@
-build/*.o
+build/*
 lib/pc/*
 lib/pi/*
 !/lib/**/.gitkeep

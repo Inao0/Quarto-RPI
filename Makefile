@@ -10,7 +10,6 @@ INCLUDE_PI = -I$(TARGET_NPI)/include $(INCLUDE)
 LIB_PI = -L$(TARGET_NPI)/lib $(LIB)
 CFLAGS_PI = -Wall -Wextra $(INCLUDE_PI) -Winline -pipe
 LDFLAGS_PI = $(LIB_PI) -lncurses -lcdk -ldl
-LD_LIBRARY_PATH = /home/haran/Documents/Centrale/G3/IHM/Quarto-RPI/lib/pc/cdk-5.0/lib
 
 ifeq ($(TARGET_NPI),)
 	TARGET_NPI=./lib/pi/ncurses-6.2
@@ -32,13 +31,35 @@ ifeq ($(TARGET_WPI),)
 	TARGET_WPI=./lib/wiringPi
 endif
 
-all: pc rpi
+all: pc rpi modules
 
-pc:
-	gcc $(CFLAGS_PC) src/main.c $(LDFLAGS_PC) -o build/quarto_pc.o
+modules: build/modules_pc.o build/modules_rpi.o
 
-rpi:
-	$(RPI_COMPILER) $(CFLAGS_PI) src/main.c $(LDFLAGS_PI) -o build/quarto_pi.o
+pc: build/QuartoPC
+
+build/QuartoPC: build/modules_pc.o src/main.c
+	gcc $(CFLAGS_PC) src/main.c $(LDFLAGS_PC) -o build/main_pc.o -c
+	gcc $(CFLAGS_PC) $(LDFLAGS_PC) -o build/QuartoPC build/modules_pc.o build/main_pc.o
+
+rpi: build/modules_rpi.o
+	$(RPI_COMPILER) $(CFLAGS_PI) src/main.c $(LDFLAGS_PI) -o build/main_pi.o -c
+	$(RPI_COMPILER) $(CFLAGS_PI) $(LDFLAGS_PI) -o build/QuartoPC build/modules_pc.o build/main_pc.o
+
+build/modules_pc.o: src/cdk_helper.c
+	gcc $(CFLAGS_PC) src/cdk_helper.c $(LDFLAGS_PC) -o build/modules_pc.o -c
+
+build/modules_rpi.o: src/cdk_helper.c
+	$(RPI_COMPILER) $(CFLAGS_PI) src/cdk_helper.c $(LDFLAGS_PI) -o build/modules_pc.o -c
+
+run: ./build/QuartoPC
+	./build/QuartoPC
+
+deploy:
+	echo "TODO ;)"
+
+force:
+	make clean
+	make
 
 clean:
 	rm -rf build/*.o
