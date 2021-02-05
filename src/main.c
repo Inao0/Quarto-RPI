@@ -1,5 +1,7 @@
 #include "../lib/pc/cdk-5.0/include/cdk.h"
 #include <cdk/cdkscreen.h>
+#include <cdk/label.h>
+#include <cdk/scroll.h>
 #include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +68,8 @@ int main () {
       "<I=1>A player wins by placing a piece on the board which forms"," a horizontal, vertical, or diagonal row of four pieces",
       "all of which have a common attribute (all short, all circular, etc.)."
    };
-   char* local_text;
+   const char * local_loading_text = "Loading...";
+   const char * online_loading_text = "Waiting for a second RPi";
    const char *list[1];
    list[0] = TITLE;
    
@@ -104,23 +107,28 @@ int main () {
    }
    setCDKScrollCurrent(scroll, 1);
    setCDKScrollPostProcess(scroll, postProcessScroll, 0);
-   /* Activate the scroll list. */
-   while((selected = activateCDKScroll (scroll, 0)) == -1);
-   switch (selected) {
+   int i = 0;
+   while(i == 0){
+      drawCDKScreen(cdkSubScreen);
+      selected = activateCDKScroll (scroll, 0);
+      eraseCDKScreen(cdkSubScreen);
+      switch (selected) {
       case LOCAL:
-         //TODO
+         displayMarquee(cdkscreen, local_loading_text);
          break;
       case ONLINE:
-         displayMentry();
+         displayMarquee(cdkscreen, online_loading_text);
          break;
       case RULES:
          displaySlide(cdkscreen, rules_text, 13, "<C></B/U/D>Rules (Short, I promise)<!D>");
          break;
       case ABOUT:
-         displayslide(cdkscreen, about_text, 29, "<C></B/U/D>About QuartoRpi<!D>");
+         displaySlide(cdkscreen, about_text, 29, "<C></B/U/D>About QuartoRpi<!D>");
          break;
       case EXIT:
+         i = 1;
          break;
+      }
    }
 
    /* Clean up. */

@@ -1,5 +1,11 @@
 #include "../lib/pc/cdk-5.0/include/cdk.h"
+#include <cdk/cdk_util.h>
+#include <cdk/cdkscreen.h>
+#include <cdk/label.h>
+#include <cdk/marquee.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include "cdk_helper.h"
 #ifndef LIST_SIZE
     #define LIST_SIZE 11
 #endif
@@ -29,20 +35,52 @@ int postProcessScroll(__attribute__((unused)) EObjectType cdkType, void *object,
 }
 
 void displaySlide(CDKSCREEN* cdkScreen, char** msg, int length, const char * title){
-    const char * button[] = {"Quit"};
     CDKSWINDOW* swindow = newCDKSwindow(cdkScreen, CENTER, CENTER, 25, 85, title, 2, TRUE, FALSE);
-    //CDKDIALOG* dialog = newCDKDialog(cdkScreen, CENTER, CENTER, (CDK_CSTRING2)msg, length, (CDK_CSTRING2)button, 1, COLOR_PAIR(2) | A_REVERSE, FALSE, TRUE, TRUE);
-    /* Is the selection list null? */
     if (swindow == 0) {
-       /* Exit CDK. */
        destroyCDKScreen (cdkScreen);
        endCDK ();
 
-       printf ("Cannot create the selection list.\n");
+       printf ("Cannot create the slide window.\n");
        printf ("Is the window too small?\n");
        exit (EXIT_FAILURE);
     }
     setCDKSwindowContents(swindow, msg, length);
     activateCDKSwindow(swindow, 0);
     destroyCDKSwindow (swindow);
+}
+
+int quitMarquee (EObjectType cdktype, void *object, void *clientData, chtype key) {
+   CDKMARQUEE *marquee = (CDKMARQUEE *)clientData;
+   destroyCDKMarquee(marquee);
+   endCDK();
+   exit(0);
+   return 0;
+}
+
+void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
+   CDKMARQUEE* marquee = newCDKMarquee(cdkScreen, CENTER, CENTER, 25, TRUE, TRUE);
+   //const char * liste[1];
+   //liste[0] = "0";
+   //CDKLABEL* header = newCDKLabel (cdkScreen, RIGHT, TOP, (CDK_CSTRING2)liste, 1, TRUE, FALSE);
+   //if (header == 0) {
+   //   destroyCDKScreen (cdkScreen);
+   //   endCDK ();
+   //   printf ("Cannot create the marquee.\n");
+   //   printf ("Is the window too small?\n");
+   //   exit (EXIT_FAILURE);
+   //}
+   //refreshCDKScreen(cdkScreen);
+	//activateCDKLabel (header, 0);
+   if (marquee == 0) {
+      /* Exit CDK. */
+      destroyCDKScreen (cdkScreen);
+      endCDK ();
+      printf ("Cannot create the marquee.\n");
+      printf ("Is the window too small?\n");
+      exit (EXIT_FAILURE);
+   }
+   //bindCDKObject (vLABEL, header, KEY_EXIT, quitMarquee, marquee);
+   activateCDKMarquee(marquee, msg, 10, 1, TRUE);
+   destroyCDKMarquee(marquee);
+   //destroyCDKLabel(header);
 }
