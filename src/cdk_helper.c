@@ -1,9 +1,12 @@
 #include "../lib/pc/cdk-5.0/include/cdk.h"
 #include <cdk/cdk_util.h>
 #include <cdk/cdkscreen.h>
+#include <cdk/entry.h>
 #include <cdk/label.h>
 #include <cdk/marquee.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "cdk_helper.h"
 #ifndef LIST_SIZE
@@ -49,11 +52,11 @@ void displaySlide(CDKSCREEN* cdkScreen, char** msg, int length, const char * tit
     destroyCDKSwindow (swindow);
 }
 
-int quitMarquee (EObjectType cdktype, void *object, void *clientData, chtype key) {
+int quitMarquee (__attribute__((unused)) EObjectType cdktype,__attribute__((unused)) void *object, void *clientData, __attribute__((unused)) chtype key) {
    CDKMARQUEE *marquee = (CDKMARQUEE *)clientData;
    destroyCDKMarquee(marquee);
-   endCDK();
-   exit(0);
+   //endCDK();
+   //exit(0);
    return 0;
 }
 
@@ -83,4 +86,24 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
    activateCDKMarquee(marquee, msg, 10, 1, TRUE);
    destroyCDKMarquee(marquee);
    //destroyCDKLabel(header);
+}
+
+void askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
+   CDKENTRY *entry;
+   const char *label    = "</U/5>Name:<!U!5>";
+   char *temp;
+   
+   entry = newCDKEntry(cdkscreen, CENTER, CENTER, title, label, A_NORMAL, '.', vMIXED, 40, 0, 256, TRUE, FALSE);
+   if (entry == 0) {
+      destroyCDKScreen(cdkscreen);
+      endCDK();
+
+      printf("Cannot create the entry field. Is the window too small?\n");
+      exit(EXIT_FAILURE);
+   }
+   temp = activateCDKEntry(entry, 0);
+   if (temp != NULL) {
+      strcpy(name, temp);
+   }
+   destroyCDKEntry(entry);
 }

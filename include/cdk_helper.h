@@ -5,4 +5,5 @@ int postProcessScroll(__attribute__((unused)) EObjectType cdkType, void *object,
 void displaySlide(CDKSCREEN* cdkScreen, char** msg, int length, const char* title);
 void displayMarquee(CDKSCREEN* cdkScreen, const char* msg);
 int quitMarquee (EObjectType cdktype, void *object, void *clientData, chtype key);
+void askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name);
 #endif

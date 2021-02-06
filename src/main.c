@@ -108,15 +108,20 @@ int main () {
    setCDKScrollCurrent(scroll, 1);
    setCDKScrollPostProcess(scroll, postProcessScroll, 0);
    int i = 0;
+   char name1[50];
+   char name2[50];
    while(i == 0){
       drawCDKScreen(cdkSubScreen);
       selected = activateCDKScroll (scroll, 0);
       eraseCDKScreen(cdkSubScreen);
       switch (selected) {
       case LOCAL:
+         askForPlayer(cdkscreen, "Enter Player 1 name", name1);
+         askForPlayer(cdkscreen, "Enter Player 2 name", name2);
          displayMarquee(cdkscreen, local_loading_text);
          break;
       case ONLINE:
+         askForPlayer(cdkscreen, "Enter your name", name1);
          displayMarquee(cdkscreen, online_loading_text);
          break;
       case RULES:
