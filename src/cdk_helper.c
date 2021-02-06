@@ -4,6 +4,7 @@
 #include <cdk/entry.h>
 #include <cdk/label.h>
 #include <cdk/marquee.h>
+#include <cdk/scroll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,9 +19,17 @@ int postProcessScroll(__attribute__((unused)) EObjectType cdkType, void *object,
    int current = getCDKScrollCurrent(scroll);
    if (current%2 == 0) {
       if (current == 0) {
-         setCDKScrollCurrent(scroll, 1);
+         if (input == KEY_UP) {
+            setCDKScrollCurrent(scroll, LIST_SIZE-2);
+         } else if (input == KEY_DOWN) {
+            setCDKScrollCurrent(scroll, 1);
+         }
       } else if (current == LIST_SIZE-1) {
-         setCDKScrollCurrent(scroll, LIST_SIZE-2);
+         if (input == KEY_UP) {
+            setCDKScrollCurrent(scroll, LIST_SIZE - 2);
+         } else if (input == KEY_DOWN) {
+            setCDKScrollCurrent(scroll, 1);
+         }
       } else {
          switch (input) {
             case KEY_UP:
