@@ -52,28 +52,8 @@ void displaySlide(CDKSCREEN* cdkScreen, char** msg, int length, const char * tit
     destroyCDKSwindow (swindow);
 }
 
-int quitMarquee (__attribute__((unused)) EObjectType cdktype,__attribute__((unused)) void *object, void *clientData, __attribute__((unused)) chtype key) {
-   CDKMARQUEE *marquee = (CDKMARQUEE *)clientData;
-   destroyCDKMarquee(marquee);
-   //endCDK();
-   //exit(0);
-   return 0;
-}
-
 void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
    CDKMARQUEE* marquee = newCDKMarquee(cdkScreen, CENTER, CENTER, 25, TRUE, TRUE);
-   //const char * liste[1];
-   //liste[0] = "0";
-   //CDKLABEL* header = newCDKLabel (cdkScreen, RIGHT, TOP, (CDK_CSTRING2)liste, 1, TRUE, FALSE);
-   //if (header == 0) {
-   //   destroyCDKScreen (cdkScreen);
-   //   endCDK ();
-   //   printf ("Cannot create the marquee.\n");
-   //   printf ("Is the window too small?\n");
-   //   exit (EXIT_FAILURE);
-   //}
-   //refreshCDKScreen(cdkScreen);
-	//activateCDKLabel (header, 0);
    if (marquee == 0) {
       /* Exit CDK. */
       destroyCDKScreen (cdkScreen);
@@ -82,10 +62,8 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
       printf ("Is the window too small?\n");
       exit (EXIT_FAILURE);
    }
-   //bindCDKObject (vLABEL, header, KEY_EXIT, quitMarquee, marquee);
    activateCDKMarquee(marquee, msg, 10, 1, TRUE);
    destroyCDKMarquee(marquee);
-   //destroyCDKLabel(header);
 }
 
 void askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
