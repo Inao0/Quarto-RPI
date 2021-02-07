@@ -1,6 +1,10 @@
 INCLUDE = -I./include
 LIB = -L./
 RPI_ADDRESS = pi@192.168.1.52
+SRCS = $(wildcard src/*.c)
+OBJS = $(subst src/,build/,$(patsubst %.c,%.o,$(SRCS)))
+OBJS_PC = $(subst build/,build/pc-,$(OBJS))
+OBJS_PI = $(subst build/,build/pi-,$(OBJS))
 
 INCLUDE_PC = -I$(TARGET_NPC)/include -I$(TARGET_CDKPC)/include -I$(TARGET_CDKPC)/include/cdk $(INCLUDE)
 LIB_PC = -L$(TARGET_NPC)/lib -L$(TARGET_CDKPC)/lib $(LIB)
@@ -36,37 +40,33 @@ ifeq ($(TARGET_WPI),)
 	TARGET_WPI=./lib/pi/wiringPi
 endif
 
-all: pc rpi modules
-
-modules: build/modules_pc.o build/modules_rpi.o
+all: pc rpi
 
 pc: build/QuartoPC
 
-build/QuartoPC: build/modules_pc.o src/main.c
-	gcc $(CFLAGS_PC) src/main.c $(LDFLAGS_PC) -o build/main_pc.o -c
-	gcc $(CFLAGS_PC) $(LDFLAGS_PC) -o build/QuartoPC build/modules_pc.o build/main_pc.o
+build/QuartoPC: $(OBJS_PC)
+	$(CC) $(CFLAGS_PC) $(LDFLAGS_PC) -o build/QuartoPC $(OBJS_PC)
 
-build/modules_pc.o: src/cdk_helper.c
-	gcc $(CFLAGS_PC) src/cdk_helper.c $(LDFLAGS_PC) -o build/modules_pc.o -c
+build/pc-%.o: src/%.c
+	$(CC) -c $(CFLAGS_PC) $(LDFLAGS_PC) -o $@ $<
 
 run: ./build/QuartoPC
 	./build/QuartoPC
 
 rpi: build/QuartoPI
 
-build/QuartoPI: build/modules_pi.o src/main.c
-	$(RPI_COMPILER) $(CFLAGS_PI) src/main.c $(LDFLAGS_PI) -o build/main_pi.o -c
-	$(RPI_COMPILER) $(CFLAGS_PI) $(LDFLAGS_PI) -o build/QuartoPI build/modules_pi.o build/main_pi.o
+build/QuartoPI: $(OBJS_PI)
+	$(RPI_COMPILER) $(CFLAGS_PI) $(LDFLAGS_PI) -o build/QuartoPI $(OBJS_PI)
 
-build/modules_pi.o: src/cdk_helper.c
-	$(RPI_COMPILER) $(CFLAGS_PI) src/cdk_helper.c $(LDFLAGS_PI) -o build/modules_pi.o -c
+build/pi-%.o: src/%.c
+	$(RPI_COMPILER) -c $(CFLAGS_PI) $(LDFLAGS_PI) -o $@ $<
 
 deploy: build/QuartoPI .deployed-lib
 	rsync build/QuartoPI $(RPI_ADDRESS):/home/pi/
 	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=./run.sh"
 
 deploy-here: .deployed .deployed-lib
-	ssh -X $(RPI_ADDRESS) "lxterminal --command=./run-on-pc.sh"
+	ssh -X $(RPI_ADDRESS) "lxterminal --command=./run.sh"
 
 .deployed: build/QuartoPI
 	touch .deployed
