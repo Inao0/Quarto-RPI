@@ -61,9 +61,22 @@ build/QuartoPI: build/modules_pi.o src/main.c
 build/modules_pi.o: src/cdk_helper.c
 	$(RPI_COMPILER) $(CFLAGS_PI) src/cdk_helper.c $(LDFLAGS_PI) -o build/modules_pi.o -c
 
-deploy: build/QuartoPI deploy-lib
+deploy: build/QuartoPI .deployed-lib
 	rsync build/QuartoPI $(RPI_ADDRESS):/home/pi/
 	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=./run.sh"
+
+deploy-here: .deployed .deployed-lib
+	ssh -X $(RPI_ADDRESS) "lxterminal --command=./run-on-pc.sh"
+
+.deployed: build/QuartoPI
+	touch .deployed
+	rsync build/QuartoPI $(RPI_ADDRESS):/home/pi/
+
+.deployed-lib: | lib/pi/ncurses-6.2/ lib/pi/wiringPi/ lib/pi/cdk-5.0/
+	touch .deployed-lib
+	rsync -rauL lib/pi/ncurses-6.2/ pi@192.168.1.52:/home/pi/ncurses-6.2/
+	rsync -rauL lib/pi/wiringPi/ pi@192.168.1.52:/home/pi/wiringPi/
+	rsync -rauL lib/pi/cdk-5.0/ pi@192.168.1.52:/home/pi/cdk-5.0/
 
 force:
 	make clean

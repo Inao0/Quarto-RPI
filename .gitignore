@@ -2,3 +2,5 @@ build/*
 lib/pc/*
 lib/pi/*
 !/lib/**/.gitkeep
+.deployed-lib
+.deployed
