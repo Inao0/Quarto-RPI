@@ -12,9 +12,9 @@
  #define LIST_SIZE 11
  #define HEIGHT (LIST_SIZE+10)
  #define WIDTH 50
- #define FOREGROUND 254
+ #define FOREGROUND 86
  #define BACKGROUND 15
- #define DEFAULT_PAIR 200
+ #define DEFAULT_PAIR 87
  #define LOCAL 1
  #define ONLINE 3
  #define RULES 5
