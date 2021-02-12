@@ -25,7 +25,7 @@ int main () {
 
    const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Exit ", ""};
    const char * local_loading_text = "Loading...";
-   const char * online_loading_text = "Waiting for a second RPi";
+   const char * online_loading_text = "Waiting for a second RPi - Not implemented";
    const char *list[1];
    list[0] = TITLE;
    
@@ -97,7 +97,9 @@ int main () {
    destroyCDKScreen (cdkscreen);
    endCDK ();
    #ifndef BUILD_PC
-      displayButtons();
+      int x,y;
+      getButton(&x,&y);
+      printf("X: %d, Y: %d\n", x, y);
    #endif
    exit (EXIT_SUCCESS);
 }

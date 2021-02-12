@@ -6,11 +6,11 @@
 #include "../include/wiring_helper.h"
 
 const int rows[] = {2,3,21,22};
-const int columns[] = {23,24,25,6};
-const int ButtonIDs[4][4] = {{4,3,2,1},{8,7,6,5},{12,11,10,9},{16,15,14,13}};
+const int columns[] = {6,25,24,23};
+const int buttonIDs[4][4] = {{4,3,2,1},{8,7,6,5},{12,11,10,9},{16,15,14,13}};
 
-int getButton(){
-    int i,j,col_scan;
+void getButton(int *x, int *y){
+    int i,j;
 
     wiringPiSetup();
 
@@ -26,13 +26,15 @@ int getButton(){
             digitalWrite(columns[j], LOW);
             for (i = 0; i < 4; i++) {
                 if (digitalRead(rows[i]) == 0) {
-                    return ButtonIDs[i][j] - 1;
+                    *x = i;
+                    *y = j;
+                    return;
                 }
             }
             digitalWrite(columns[j], HIGH);
         }
     }
-    return -1;
+    return;
 }
 
 void displayButtons(){
@@ -71,7 +73,7 @@ int buttonHeldDown(int i) {
 }
 
 void activateButton(int rowPin, int colPin) {
-    int btnIndex = ButtonIDs[rowPin][colPin] - 1;
+    int btnIndex = buttonIDs[rowPin][colPin] - 1;
     printf("Button %d pressed\n", btnIndex);
     usleep(300000);
 }
