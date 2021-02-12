@@ -63,14 +63,12 @@ void fill_circle(SDL_Renderer *renderer, int cx, int cy, int radius) {
 // Joy-Pi 7'' inch screen resolution : 1024x600
 void draw_quarto_board(SDL_Renderer *renderer, char quarto_board[4][4]) {
     int center_x, center_y;
-    SDL_Color orange = {255, 140, 0, 255};
-    SDL_Color marron = {170, 93, 0, 255};
     SDL_Color white = {255, 255, 255, 255};
 
     for (int i = 0; i < 4; ++i) {
         center_x = 150 + (i * 110);
         for (int j = 0; j < 4; ++j) {
-            center_y = 150 + (j * 110);
+            center_y = 170 + (j * 110);
             if (0 != SDL_SetRenderDrawColor(renderer, white.r, white.g, white.b, white.a)) {
                 fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
             }
@@ -87,15 +85,12 @@ void draw_quarto_board(SDL_Renderer *renderer, char quarto_board[4][4]) {
 // Joy-Pi 7'' inch screen resolution : 1024x600
 void draw_remaining_pawns(SDL_Renderer *renderer, char remaining_pawns[4][4]) {
     int center_x, center_y;
-    SDL_Color orange = {255, 140, 0, 255};
-    SDL_Color marron = {170, 93, 0, 255};
     SDL_Color light_orange = {255, 215, 167, 255};
-    SDL_Color white = {255, 255, 255, 255};
 
     for (int i = 0; i < 4; ++i) {
         center_x = 700 + (i * 70);
         for (int j = 0; j < 4; ++j) {
-            center_y = 270 + (j * 70);
+            center_y = 290 + (j * 70);
             if (0 != SDL_SetRenderDrawColor(renderer, light_orange.r, light_orange.g, light_orange.b, light_orange.a)) {
                 fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
             }
@@ -109,7 +104,7 @@ void draw_remaining_pawns(SDL_Renderer *renderer, char remaining_pawns[4][4]) {
 
 void draw_current_pawn(SDL_Renderer *renderer, int pawn) {
     int center_x = 798;
-    int center_y = 150;
+    int center_y = 170;
     SDL_Color light_orange = {255, 215, 167, 255};
 
     draw_pawn(renderer, pawn, center_x, center_y, light_orange);
@@ -135,15 +130,14 @@ void draw_pawn(SDL_Renderer *renderer, int pawn, int centre_x, int centre_y, SDL
     int size = (is_big(pawn)) ? 30 : 17;
 
     SDL_Color orange = {255, 140, 0, 255};
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Color marron = {170, 93, 0, 255};
+    SDL_Color brown = {170, 93, 0, 255};
 
     if (is_orange(pawn)) {
         if (0 != SDL_SetRenderDrawColor(renderer, orange.r, orange.g, orange.b, orange.a)) {
             fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
         }
     } else {
-        if (0 != SDL_SetRenderDrawColor(renderer, marron.r, marron.g, marron.b, marron.a)) {
+        if (0 != SDL_SetRenderDrawColor(renderer, brown.r, brown.g, brown.b, brown.a)) {
             fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
         }
     }

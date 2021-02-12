@@ -4,12 +4,12 @@ LIB = -L./
 INCLUDE_NCURSES_PC = -I$(TARGET_NPC)/include $(INCLUDE)
 LIB_NCURSES_PC = -L$(TARGET_NPC)/lib $(LIB)
 CFLAGS_PC = -Wall -Wextra $(INCLUDE_NCURSES_PC) -Winline -pipe
-LDFLAGS_PC = $(LIB_NCURSES_PC) -lncurses -ldl -lSDL2 -lm
+LDFLAGS_PC = $(LIB_NCURSES_PC) -lncurses -ldl -lSDL2 -lSDL2_ttf -lm
 
 INCLUDE_NCURSES_PI = -I$(TARGET_NPI)/include $(INCLUDE)
 LIB_NCURSES_PI = -L$(TARGET_NPI)/lib $(LIB)
 CFLAGS_PI = -Wall -Wextra $(INCLUDE_NCURSES_PI) -Winline -pipe
-LDFLAGS_PI = $(LIB_NCURSES_PI) -lncurses -ldl -lSDL2 -lm
+LDFLAGS_PI = $(LIB_NCURSES_PI) -lncurses -ldl -lSDL2 -lSDL2_ttf -lm
 
 ifeq ($(TARGET_NPI),)
 	TARGET_NPI=./lib/pi/ncurses-6.2/
