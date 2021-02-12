@@ -26,7 +26,7 @@ endif
 all: PC RPI
 
 PC:
-	gcc $(CFLAGS_PC) src/main.c src/sdl_helper.c $(LDFLAGS_PC) -o build/quarto_pc.o
+	gcc $(CFLAGS_PC) src/main.c src/sdl_helper.c src/quarto.c $(LDFLAGS_PC) -o build/quarto_pc.o
 
 RPI:
 	$(RPI_COMPILER) $(CFLAGS_PI) src/main.c $(LDFLAGS_PI) -o build/quarto_pi.o

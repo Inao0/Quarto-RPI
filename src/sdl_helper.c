@@ -1,6 +1,8 @@
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
 #include <math.h>
 #include "sdl_helper.h"
+#include "quarto.h"
 
 void draw_circle(SDL_Renderer *renderer, int centreX, int centreY, int radius) {
     const int diameter = (radius * 2);
@@ -110,21 +112,6 @@ void draw_current_pawn(SDL_Renderer *renderer, int pawn) {
     draw_pawn(renderer, pawn, center_x, center_y, light_orange);
 }
 
-int is_orange(int pawn) {
-    return (pawn & 0x01);
-}
-
-int is_square(int pawn) {
-    return (pawn & 0x02);
-}
-
-int is_big(int pawn) {
-    return (pawn & 0x04);
-}
-
-int is_hollow(int pawn) {
-    return (pawn & 0x08);
-}
 
 void draw_pawn(SDL_Renderer *renderer, int pawn, int centre_x, int centre_y, SDL_Color background_color) {
     int size = (is_big(pawn)) ? 30 : 17;
@@ -172,4 +159,79 @@ void draw_pawn(SDL_Renderer *renderer, int pawn, int centre_x, int centre_y, SDL
             fill_circle(renderer, centre_x, centre_y, hole_size - 1);
         }
     }
+}
+
+
+void initialise_messages(SDL_Renderer *renderer, TTF_Font *font, SDL_Texture *messages_textures[3],
+                         SDL_Rect messages_rect[3]) {
+    initialise_sdl_ttf_quarto_message(renderer, &messages_textures[0], &messages_rect[0], font);
+    initialise_sdl_ttf_remaining_message(renderer, &messages_textures[1], &messages_rect[1], font);
+    initialise_sdl_ttf_next_message(renderer, &messages_textures[2], &messages_rect[2], font);
+
+}
+
+void initialise_sdl_ttf_quarto_message(SDL_Renderer *renderer, SDL_Texture **quartoMessageTexture,
+                                       SDL_Rect *quartoMessage_rect, TTF_Font *font) {
+    SDL_Color white = {255, 255, 255, 255};
+
+    SDL_Surface *quartoMessage = TTF_RenderText_Solid(font, "Quarto",
+                                                      white); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+    *quartoMessageTexture = SDL_CreateTextureFromSurface(renderer,
+                                                         quartoMessage); //now you can convert it into a texture
+
+
+    quartoMessage_rect->x = 105;  //controls the rect's x coordinate
+    quartoMessage_rect->y = 10; // controls the rect's y coordinte
+    quartoMessage_rect->w = 275; // controls the width of the rect
+    quartoMessage_rect->h = 70; // controls the height of the rect
+
+}
+
+void initialise_sdl_ttf_remaining_message(SDL_Renderer *renderer, SDL_Texture **remainingMessageTexture,
+                                          SDL_Rect *remainingMessage_rect, TTF_Font *font) {
+    SDL_Color white = {255, 255, 255, 255};
+
+    SDL_Surface *remainingMessage = TTF_RenderText_Solid(font, "Remaining Pawns :", white);
+    *remainingMessageTexture = SDL_CreateTextureFromSurface(renderer, remainingMessage);
+
+    remainingMessage_rect->x = 670;  //controls the rect's x coordinate
+    remainingMessage_rect->y = 225; // controls the rect's y coordinte
+    remainingMessage_rect->w = 200; // controls the width of the rect
+    remainingMessage_rect->h = 25; // controls the height of the rect
+}
+
+void
+initialise_sdl_ttf_next_message(SDL_Renderer *renderer, SDL_Texture **nextMessageTexture, SDL_Rect *nextMessage_rect,
+                                TTF_Font *font) {
+    SDL_Color white = {255, 255, 255, 255};
+
+    SDL_Surface *nextMessage = TTF_RenderText_Solid(font, "Next Pawn :", white);
+    *nextMessageTexture = SDL_CreateTextureFromSurface(renderer, nextMessage);
+
+    nextMessage_rect->x = 670;  //controls the rect's x coordinate
+    nextMessage_rect->y = 100; // controls the rect's y coordinte
+    nextMessage_rect->w = 140; // controls the width of the rect
+    nextMessage_rect->h = 25; // controls the height of the rect
+}
+
+
+void draw_game(SDL_Renderer *renderer, char quarto_board[4][4], char remaining_pawns[4][4],
+               char selected_pawn, struct SDL_Rect* messages_rect, struct SDL_Texture** messages_textures,
+               int number_of_messages) {
+    draw_quarto_board(renderer, quarto_board);
+    draw_remaining_pawns(renderer, remaining_pawns);
+    if(selected_pawn>=0){
+        draw_current_pawn(renderer,selected_pawn);
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        printf("Rectangle %d %d %d\n",  messages_rect[i].x,messages_rect[i].y,messages_rect[i].h);
+    }
+
+    for (int i = 0; i < number_of_messages; ++i) {
+        SDL_RenderCopy(renderer,messages_textures[i],NULL,&(messages_rect[i]));
+    }
+    SDL_RenderPresent(renderer);
+
+
 }
