@@ -1,6 +1,5 @@
 INCLUDE = -I./include
 LIB = -L./
-RPI_ADDRESS = pi@192.168.1.52
 SRCS = $(wildcard src/*.c)
 OBJS = $(subst src/,build/,$(patsubst %.c,%.o,$(SRCS)))
 OBJS_PC = $(subst build/,build/pc-,$(OBJS))
@@ -8,28 +7,24 @@ OBJS_PI = $(subst build/,build/pi-,$(OBJS))
 
 INCLUDE_PC = -I$(TARGET_NPC)/include -I$(TARGET_CDKPC)/include -I$(TARGET_CDKPC)/include/cdk $(INCLUDE)
 LIB_PC = -L$(TARGET_NPC)/lib -L$(TARGET_CDKPC)/lib $(LIB)
-CFLAGS_PC = -Wall -Wextra $(INCLUDE_PC) -Winline -pipe
+CFLAGS_PC = -Wall -Wextra $(INCLUDE_PC) -Winline -pipe -DBUILD_PC
 LDFLAGS_PC = $(LIB_PC) -lncurses -lcdk -ldl
 
 INCLUDE_PI = -I$(TARGET_NPI)/include -I$(TARGET_NPI)/include/ncurses -I$(TARGET_WPI)/include -I$(TARGET_CDKPI)/include -I$(TARGET_CDKPI)/include/cdk $(INCLUDE)
 LIB_PI = -L$(TARGET_NPI)/lib -L$(TARGET_CDKPI)/lib -L$(TARGET_WPI)/lib $(LIB)
 CFLAGS_PI = -Wall -Wextra $(INCLUDE_PI) -Winline -pipe
-LDFLAGS_PI = $(LIB_PI) -lncurses -lcdk -ldl
-
-ifeq ($(TARGET_NPI),)
-	TARGET_NPI=./lib/pi/ncurses-6.2
-endif
+LDFLAGS_PI = $(LIB_PI) -lncurses -lcdk -ldl -lwiringPi
 
 ifeq ($(TARGET_NPC),)
 	TARGET_NPC=./lib/pc/ncurses-6.2
 endif
 
-ifeq ($(TARGET_NPI),)
-	TARGET_NPI=./lib/pi/cdk-5.0
-endif
-
 ifeq ($(TARGET_CDKPC),)
 	TARGET_CDKPC=./lib/pc/cdk-5.0
+endif
+
+ifeq ($(TARGET_NPI),)
+	TARGET_NPI=./lib/pi/ncurses-6.2
 endif
 
 ifeq ($(TARGET_CDKPI),)
@@ -37,7 +32,7 @@ ifeq ($(TARGET_CDKPI),)
 endif
 
 ifeq ($(TARGET_WPI),)
-	TARGET_WPI=./lib/pi/wiringPi
+	TARGET_WPI=./lib/pi/wiringPi/build
 endif
 
 all: pc rpi
@@ -61,8 +56,7 @@ build/QuartoPI: $(OBJS_PI)
 build/pi-%.o: src/%.c
 	$(RPI_COMPILER) -c $(CFLAGS_PI) $(LDFLAGS_PI) -o $@ $<
 
-deploy: build/QuartoPI .deployed-lib
-	rsync build/QuartoPI $(RPI_ADDRESS):/home/pi/
+deploy: build/QuartoPI .deployed-lib .deployed
 	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=./run.sh"
 
 deploy-here: .deployed .deployed-lib
