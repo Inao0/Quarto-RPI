@@ -5,15 +5,16 @@ OBJS = $(subst src/,build/,$(patsubst %.c,%.o,$(SRCS)))
 OBJS_PC = $(subst build/,build/pc-,$(OBJS))
 OBJS_PI = $(subst build/,build/pi-,$(OBJS))
 
+
 INCLUDE_PC = -I$(TARGET_NPC)/include -I$(TARGET_CDKPC)/include -I$(TARGET_CDKPC)/include/cdk $(INCLUDE)
 LIB_PC = -L$(TARGET_NPC)/lib -L$(TARGET_CDKPC)/lib $(LIB)
 CFLAGS_PC = -Wall -Wextra $(INCLUDE_PC) -Winline -pipe -DBUILD_PC
-LDFLAGS_PC = $(LIB_PC) -lncurses -lcdk -ldl
+LDFLAGS_PC = $(LIB_PC) -lncurses -lcdk -ldl -lSDL2 -lSDL2_ttf -lm
 
 INCLUDE_PI = -I$(TARGET_NPI)/include -I$(TARGET_NPI)/include/ncurses -I$(TARGET_WPI)/include -I$(TARGET_CDKPI)/include -I$(TARGET_CDKPI)/include/cdk $(INCLUDE)
 LIB_PI = -L$(TARGET_NPI)/lib -L$(TARGET_CDKPI)/lib -L$(TARGET_WPI)/lib $(LIB)
 CFLAGS_PI = -Wall -Wextra $(INCLUDE_PI) -Winline -pipe
-LDFLAGS_PI = $(LIB_PI) -lncurses -lcdk -ldl -lwiringPi
+LDFLAGS_PI = $(LIB_PI) -lncurses -lcdk -ldl -lwiringPi -lSDL2 -lSDL2_ttf -lm
 
 ifeq ($(TARGET_NPC),)
 	TARGET_NPC=./lib/pc/ncurses-6.2
@@ -65,7 +66,7 @@ deploy-here: .deployed .deployed-lib
 .deployed: build/QuartoPI
 	touch .deployed
 	rsync build/QuartoPI $(RPI_ADDRESS):/home/pi/
-
+  
 .deployed-lib: | lib/pi/ncurses-6.2/ lib/pi/wiringPi/ lib/pi/cdk-5.0/
 	touch .deployed-lib
 	rsync -rauL lib/pi/ncurses-6.2/ pi@192.168.1.52:/home/pi/ncurses-6.2/
