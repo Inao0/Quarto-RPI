@@ -19,6 +19,7 @@ LIBPNG_RPI=./lib/rpi/libpng
 ZLIB_RPI=./lib/rpi/zlib
 
 #---------------------/!\ Do not edit past this point /!\-----------------#
+DEST_FOLDER=/home/pi/QuartoRPI
 INCLUDE = -I./include
 LIB = -L./lib
 SRCS = $(wildcard src/*.c)
@@ -57,21 +58,27 @@ build/rpi-%.o: src/%.c
 build/QuartoRPI: $(OBJS_RPI)
 	$(RPI_COMPILER) $(CFLAGS_RPI) $(LDFLAGS_RPI) -o build/QuartoRPI $(OBJS_RPI)
 
-deploy: build/QuartoRPI .deployed-lib .deployed
-	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=./run.sh"
+deploy: build/QuartoRPI .deployed .deployed-lib .deployed-assets
+	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=$(DEST_FOLDER)/assets/run.sh"
 
 deploy-lib: .deployed-lib
 
-deploy-here: .deployed .deployed-lib
-	ssh -X $(RPI_ADDRESS) "lxterminal --command=./run.sh"
+deploy-assets: .deployed-assets
+
+deploy-here: .deployed .deployed-lib .deployed-assets
+	ssh -X $(RPI_ADDRESS) "lxterminal --command=$(DEST_FOLDER)/assets/run.sh"
 
 .deployed: build/QuartoRPI
 	touch .deployed
-	rsync build/QuartoRPI $(RPI_ADDRESS):/home/pi/
-  
+	rsync build/QuartoRPI $(RPI_ADDRESS):$(DEST_FOLDER)
+
+.deployed-assets: assets/*
+	touch .deployed-assets
+	rsync -rauL assets/ $(RPI_ADDRESS):$(DEST_FOLDER)/assets
+
 .deployed-lib: | lib/rpi/*
 	touch .deployed-lib
-	rsync -rauL --info=progress2 lib/rpi/* $(RPI_ADDRESS):/home/pi
+	rsync -rauL --info=progress2 lib/rpi/* $(RPI_ADDRESS):$(DEST_FOLDER)
 
 force:
 	make clean

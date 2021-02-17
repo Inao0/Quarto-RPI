@@ -4,3 +4,4 @@ lib/rpi/*
 !/lib/**/.gitkeep
 .deployed-lib
 .deployed
+.deployed-assets
