@@ -25,6 +25,7 @@ A few Makefile commands:
 * `make deploy` compiles the RPI project, sends it to the raspberry, and runs the application on the RPI
 * `make deploy-here` does the same as above, but the UI is displayed on the PC (unstable)
 * `make deploy-lib` sends the libraries and `run.sh` to the RPI
+* `make clean` to clean the project. (This will not delete the RPI libraries)
 
 *Note: the first deployement usually takes a while considering that all the libraries need to be sent to the RPI.*
 

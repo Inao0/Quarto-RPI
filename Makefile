@@ -86,3 +86,6 @@ force:
 
 clean:
 	rm -rf build/*.o
+	rm .deployed
+	rm .deployed-assets
+	rm .deployed-lib
