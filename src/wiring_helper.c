@@ -2,7 +2,7 @@
 #include <unistd.h>
 #ifndef BUILD_PC
 
-#include "../lib/pi/wiringPi/wiringPi/wiringPi.h"
+#include "../lib/rpi/wiringPi/wiringPi/wiringPi.h"
 #include "../include/wiring_helper.h"
 
 const int rows[] = {2,3,21,22};

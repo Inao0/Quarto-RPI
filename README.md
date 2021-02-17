@@ -1,34 +1,42 @@
 # Quarto-RPI
-Jeu du quarto pour la malette joyPi en utilisant la matrice de boutons comme entrée.
+Quarto Game to be played on a Joy-IT raspberry case, utilizing the SBC-ButtonMatrix.
 
-# Solutions techniques utilisées :
-- Ncurses pour les menus
-- GPIO pour la matrice de bouton ?
-- SDL pour le plateau et les pions ?
+## Compiling
+The project needs a few requirements to work properly.
+It was designed to use cross-compiling on a personnal computer.
+Thus you need to cross-compile these requirements to be able to build Quarto-RPI:
+* wiringPi
+* ncurses
+* cdk
+* SDL2
+* SDL2_ttf (along with freetype, libpng, and zlib)
 
-# User story :
-- L'utilisateur allume la machine
-- Le RPI démarre avec le menu du quarto en plein écran
-	options disponibles :
-	1. nouvelle partie locale 
-	2. *Nouvelle partie en ligne 2ème temps*
-	3. Afficher le règles
-	4. About
-	5. *Bouton quitter temporaire pour le développement*
+These should be placed under the folder `./lib/rpi` but you can place them anywhere, as long as you define the `<LIBNAME>_RPI` variables in the Makefile. Beware also of the name of the libraries, considering they will be used in the `assets/run.sh` script to locate the libraries.
 
-- Nouvelle partie locale
-	1. *Entrer le nom des joueurs ?*
-	2. Le premier joueur choisi une pièce
-	3. Le deuxième joueur place la pièce et choisi la seconde
-	4. Le premier joueur la place et choisi la troisième...
-	5. etc.
-	6. Lorsqu'un alignement de est détecter afficher un écran de victoire (*mettre en valeur l'alignement ?*)
-	7. Boutons Rejouer ? / Menu principal
+You also need to define the following environment variables:
+* `RPI_COMPILER=/path/to/cross-compiler` to cross-compile
+* `RPI_ADDRESS=<login>@<ipadress>` to send automatically the built files
 
-- Nouvelle partie en ligne
-	1. Entrer le nom du joueur
-	2. Proposer ou se mettre en attente ?
-	3. Si proposer : Entrer l'addresse ip du joueur avec qui vous souhaiter jouer (client)
-	4. Sinon on écoute pour une proposition de partie. (serveur)
-	5. Tir au sort du premier joueur.
-	6. Cf partie local
+*Note: you can also use a standard compiler, if you need to test UI related code on your computer.*
+
+A few Makefile commands:
+* `make` compiles the whole project
+* `make run` compiles the PC project (without wiringPi and GPIO support), and runs the application on the PC
+* `make deploy` compiles the RPI project, sends it to the raspberry, and runs the application on the RPI
+* `make deploy-here` does the same as above, but the UI is displayed on the PC (unstable)
+* `make deploy-lib` sends the libraries and `run.sh` to the RPI
+
+*Note: the first deployement usually takes a while considering that all the libraries need to be sent to the RPI.*
+
+## Demo
+:construction: Work in progress :construction:
+
+## Note
+This repository and its files are currently very barebones. It is a simple student project. This is all just made for fun and nothing too serious.
+
+## Credits
+This software uses the following open source libraries:
+* [wiringPi](http://wiringpi.com/)
+* [sdl](https://wiki.libsdl.org/FrontPage)
+* [sdl_ttf](https://www.libsdl.org/projects/SDL_ttf/)
+* [cdk](https://invisible-island.net/cdk/)

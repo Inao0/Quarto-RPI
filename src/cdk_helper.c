@@ -1,4 +1,4 @@
-#include "../lib/pc/cdk-5.0/include/cdk.h"
+#include <cdk.h>
 #include <cdk/cdk_util.h>
 #include <cdk/cdkscreen.h>
 #include <cdk/entry.h>
@@ -135,4 +135,10 @@ void askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
       strcpy(name, temp);
    }
    destroyCDKEntry(entry);
+}
+
+void cdkCleanUp(CDKSCREEN* cdkscreen){
+   destroyCDKScreenObjects(cdkscreen);
+   destroyCDKScreen (cdkscreen);
+   endCDK ();
 }
