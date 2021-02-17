@@ -1,4 +1,5 @@
-#include "../lib/pc/cdk-5.0/include/cdk.h"
+#include <cdk.h>
+#include <SDL2/SDL_render.h>
 #include <cdk/cdkscreen.h>
 #include <cdk/label.h>
 #include <cdk/scroll.h>
@@ -6,7 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cdk_helper.h"
-#include "wiring_helper.h"
+#include "indexes_menu.h"
+
+#ifndef BUILD_PC
+   #include "wiring_helper.h"
+#endif
+
 #include "indexes_menu.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -23,9 +29,6 @@
 #define DEFAULT_PAIR 87
 
 #define RED 0
-#define N_CHOICES 5
-#define EXIT "EXIT"
-#define EXIT_INDEX N_CHOICES+1
 #define NUMBER_OF_SDL_MESSAGES 3
 
 #define SDL_CHECK(status, msg)                        \
@@ -39,9 +42,6 @@
     fprintf(stderr, "%s : %s\n", msg, TTF_GetError());  \
     exit (EXIT_FAILURE);                            \
   }
-
-
-char *choices_right[] = {"New local game", "New online game", "Rules", "About", EXIT};
 
 int SDL_Quarto ();
 
@@ -162,7 +162,6 @@ int SDL_Quarto (){
     SDL_CHECK(window == NULL, "Erreur SDL_CreateWindow");
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_CHECK(NULL == renderer, "Erreur SDL_CreateRenderer");
-
     SDL_TTF_CHECK(TTF_Init() == -1, "TTF_Init");
     TTF_Font *Sans = TTF_OpenFont("./assets/Moonglade.ttf", 60); //this opens a font style and sets a size
     SDL_TTF_CHECK(TTF_Init() == -1, "TTF_OpenFont");
@@ -190,7 +189,6 @@ int SDL_Quarto (){
 
     statut = EXIT_SUCCESS;
     SDL_Delay(3000);
-
     for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
         SDL_DestroyTexture(messages_textures[i]);
     }
@@ -199,4 +197,5 @@ int SDL_Quarto (){
     if (NULL != window)
         SDL_DestroyWindow(window);
     SDL_Quit();
+   return statut;
 }

@@ -1,6 +1,6 @@
 build/*
 lib/pc/*
-lib/pi/*
+lib/rpi/*
 !/lib/**/.gitkeep
 .deployed-lib
 .deployed
