@@ -28,13 +28,16 @@ void getButton(int *x, int *y){
                 if (digitalRead(rows[i]) == 0) {
                     *x = i;
                     *y = j;
+                    while (buttonHeldDown(i)) continue;
+                    for (i = 0 ; i < 4 ; ++i) {
+                        pinMode(columns[i], INPUT);
+                    }
                     return;
                 }
             }
             digitalWrite(columns[j], HIGH);
         }
     }
-    return;
 }
 
 void displayButtons(){
