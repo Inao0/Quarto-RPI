@@ -20,7 +20,8 @@ const int buttonIDs[4][4] = {{4,3,2,1},{8,7,6,5},{12,11,10,9},{16,15,14,13}};
  */
 void getButton(int *x, int *y){
     int i,j;
-
+    int button_pressed = 0;
+    int buttons_not_released = 1;
     wiringPiSetup();
 
     /* Initialize the pins Mode */
@@ -31,7 +32,7 @@ void getButton(int *x, int *y){
         digitalWrite(columns[i], HIGH);
     }
     
-    while (TRUE){
+    while (!button_pressed){
         for (j = 0 ; j < 4 ; ++j){
             digitalWrite(columns[j], LOW);
             for (i = 0; i < 4; i++) {

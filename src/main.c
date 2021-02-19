@@ -8,14 +8,16 @@
 #include <stdlib.h>
 #include "cdk_helper.h"
 #include "indexes_menu.h"
+#include <unistd.h>
 
 #ifndef BUILD_PC
-   #include "wiring_helper.h"
+#include "wiring_helper.h"
 #endif
 
 #include "indexes_menu.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <wiring_helper.h>
 
 #include "sdl_helper.h"
 #include "quarto.h"
@@ -43,11 +45,11 @@
     exit (EXIT_FAILURE);                            \
   }
 
-int SDL_Quarto ();
+int SDL_Quarto();
 
 int main() {
 
- CDKSCREEN *cdkscreen, *cdkSubScreen;
+   CDKSCREEN *cdkscreen, *cdkSubScreen;
    CDKSCROLL *scroll = 0;
    CDKLABEL *header;
    WINDOW* subWindow;
@@ -139,13 +141,12 @@ int main() {
 
 /* Play a quarto game */
 int SDL_Quarto (){
-
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     int statut = EXIT_FAILURE;
-    char quarto_board[4][4];
-    char remaining_pawns[4][4];
-    char next_pawn = -1;
+    signed char quarto_board[4][4];
+    signed char remaining_pawns[4][4];
+    signed char next_pawn = 0;
 
     initialise_game(quarto_board, remaining_pawns);
 
@@ -159,7 +160,7 @@ int SDL_Quarto (){
 
     SDL_CHECK(SDL_Init(SDL_INIT_VIDEO), "Erreur SDL_Init");
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              1024, 600, SDL_WINDOW_SHOWN);
+                              1920, 1080, SDL_WINDOW_FULLSCREEN);
     //SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     SDL_CHECK(window == NULL, "Erreur SDL_CreateWindow");
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -174,23 +175,53 @@ int SDL_Quarto (){
               "Erreur SDL_SetRenderDrawColor");
     SDL_CHECK(SDL_RenderClear(renderer), "Erreur SDL_RenderClear");
     SDL_RenderPresent(renderer);
-    for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
-        printf("Rectancle %d %d %d\n",  messages_rect[i].x,messages_rect[i].y,messages_rect[i].h);
-    }
+//    for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
+//        printf("Rectangle %d %d %d\n", messages_rect[i].x, messages_rect[i].y, messages_rect[i].h);
+//    }
+
 
     draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
               NUMBER_OF_SDL_MESSAGES);
 
-    int quit = 0;
+    int compteur = 0;
+    int i, j;
+    int i_t, j_t;
+    int victory_condition=0;
+    int button_up = 0;
 
     //while personne n'a gagné :
-  //  while (victory(quarto_board) && !quit) {
+    while (victory_condition==0 && compteur < 7) {
+        while (next_pawn == 0) {
+            //sleep(1);
+            getButton(&j, &i);
+            next_pawn = remaining_pawns[i][j];
+            remaining_pawns[i][j] = 0;
+            button_up = 0;
+        }
+        draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
+                  NUMBER_OF_SDL_MESSAGES);
 
-//    }
+        while (next_pawn > 0) {
+            //sleep(1);
+            getButton(&j, &i);
+            if (quarto_board[i][j] == 0) {
+                quarto_board[i][j] = next_pawn;
+                next_pawn = 0;
+            }
+            button_up = 0;
+        }
+        draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
+                  NUMBER_OF_SDL_MESSAGES);
 
+        victory_condition = victory(quarto_board);
+        compteur++;
+    }
+    draw_victory(renderer,victory_condition);
 
     statut = EXIT_SUCCESS;
-    SDL_Delay(3000);
+    SDL_Delay(10000);
+
+
     for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
         SDL_DestroyTexture(messages_textures[i]);
     }
@@ -199,5 +230,5 @@ int SDL_Quarto (){
     if (NULL != window)
         SDL_DestroyWindow(window);
     SDL_Quit();
-   return statut;
+    return statut;
 }
