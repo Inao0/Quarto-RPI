@@ -52,7 +52,7 @@ int main() {
    CDKLABEL *header;
    WINDOW* subWindow;
 
-   const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Exit ", ""};
+   const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Shutdown ", ""};
    const char * local_loading_text = "Loading...";
    const char * online_loading_text = "Waiting for a second RPi - Not implemented";
    const char *list[1];
@@ -98,11 +98,18 @@ int main() {
    while(i == 0){
       drawCDKScreen(cdkSubScreen);
       selected = activateCDKScroll (scroll, 0);
+      if (scroll->exitType == vESCAPE_HIT) {
+         i = 1;
+         continue;
+      }
       eraseCDKScreen(cdkSubScreen);
       switch (selected) {
       case LOCAL:
-         askForPlayer(cdkscreen, "Enter Player 1 name", name1);
-         askForPlayer(cdkscreen, "Enter Player 2 name", name2);
+         askForPlayers:
+         if (askForPlayer(cdkscreen, "<C>Enter Player 1 name\n<C><#LT><#HL(30)><#RT>", name1) == EXIT_FAILURE)
+            continue;
+         if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
+            goto askForPlayers;
          displayMarquee(cdkscreen, local_loading_text);
          SDL_Quarto ();
          break;
@@ -121,18 +128,15 @@ int main() {
          break;
       }
    }
-    
-     /* Clean up. */
+
+   /* Clean up. */
    destroyCDKScreenObjects(cdkscreen);
    destroyCDKScreen (cdkscreen);
    endCDK ();
    #ifndef BUILD_PC
-      int x,y;
-      getButton(&x,&y);
-      printf("X: %d, Y: %d\n", x, y);
+      system("shutdown -h now");
    #endif
    exit (EXIT_SUCCESS);
-
 }
 
 

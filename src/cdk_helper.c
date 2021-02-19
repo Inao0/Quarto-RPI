@@ -1,16 +1,23 @@
 #include <cdk.h>
+#include <cdk/cdk_objs.h>
 #include <cdk/cdk_util.h>
 #include <cdk/cdkscreen.h>
+#include <cdk/curdefs.h>
 #include <cdk/entry.h>
 #include <cdk/label.h>
 #include <cdk/marquee.h>
+#include <cdk/matrix.h>
 #include <cdk/scroll.h>
+#include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "cdk_helper.h"
 #include "indexes_menu.h"
+
+#define N_LETTERS 3
+#define N_COLS 3
 
 char* about_text[] = {
    "<I=1>This is a student project for the UI lesson at Centrale Lille.","So it may be full of </B>bugs<!B> but don't let that impress you", "",
@@ -117,28 +124,96 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
    destroyCDKMarquee(marquee);
 }
 
-void askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
-   CDKENTRY *entry;
-   const char *label    = "</U/5>Name:<!U!5>";
-   char *temp;
+int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
+   CDKMATRIX *charMatrix = 0;
+   int rows             = 1;
+   int cols             = N_LETTERS;
+   int vrows            = 1;
+   int vcols            = N_LETTERS;
+
+   const char *coltitle[N_COLS] = {0};
+   const char *rowtitle[N_COLS];
+   const char *mesg[3];
+
+   int colwidth[N_COLS] = {1};
+   int colvalue[N_COLS] = {vUMIXED};
+
+   chtype input;
+   boolean functionKey = FALSE;
+   char *currentValue;
+   char newValue;
+   int status;
+   int col_spacing = 0;
+   int row_spacing = 0;
+
+   for (int i = 0; i < N_LETTERS+1; i++) {
+      colwidth[i] = 1 ;
+   }
+
+   rowtitle[1] = "Pseudo:";
+
+   /* Create the matrix object. */
+   charMatrix = newCDKMatrix (cdkscreen,CENTER,CENTER,
+			      rows, cols, vrows, vcols,
+			      title,
+			      (CDK_CSTRING2)rowtitle,
+			      (CDK_CSTRING2)coltitle,
+			      colwidth, colvalue,
+			      col_spacing, row_spacing, '.',
+			      COL, TRUE,
+			      FALSE,
+			      TRUE);
+
+   for (int i = 0; i < N_LETTERS + 1; i++) {
+      setCDKMatrixCell(charMatrix, 1, i, "A");
+   }
    
-   entry = newCDKEntry(cdkscreen, CENTER, CENTER, title, label, A_NORMAL, '.', vMIXED, 40, 0, 256, TRUE, FALSE);
-   if (entry == 0) {
-      destroyCDKScreen(cdkscreen);
-      endCDK();
-
-      printf("Cannot create the entry field. Is the window too small?\n");
-      exit(EXIT_FAILURE);
+   drawCDKMatrix(charMatrix,TRUE);
+   // a bit of a hack to quit widget at the right-most cell
+   while (charMatrix->exitType != vNORMAL) {
+      input = (chtype)getchCDKObject (ObjOf (charMatrix), &functionKey);
+      currentValue = getCDKMatrixCell(charMatrix, charMatrix->crow, charMatrix->ccol);
+      switch (input) {
+         case KEY_UP:
+            if (currentValue[0] == 'Z')
+               newValue = 'A';
+            else
+               newValue = (char)(((int)currentValue[0]) + 1);
+            setCDKMatrixCell(charMatrix, charMatrix->crow, charMatrix->ccol, &newValue);
+            break;
+         case KEY_DOWN:
+            if (currentValue[0] == 'A')
+               newValue = 'Z';
+            else
+               newValue = (char)(((int)currentValue[0]) - 1);
+            setCDKMatrixCell(charMatrix, charMatrix->crow, charMatrix->ccol, &newValue);
+            break;
+         case KEY_ENTER:
+            if (charMatrix->ccol == N_LETTERS){
+               input = KEY_ENTER;
+            } else {
+               input = KEY_RIGHT;
+            }
+            break;
+         case KEY_ESC:
+            destroyCDKMatrix(charMatrix);
+            return EXIT_FAILURE;
+      }
+      drawCDKMatrix(charMatrix, TRUE);
+      injectCDKMatrix (charMatrix, input);
+   };
+   if (charMatrix->exitType == vNORMAL) {
+      for (int i = 1; i <= N_LETTERS; i++) {
+         currentValue = getCDKMatrixCell(charMatrix, 1, i);
+         name[i-1] = currentValue[0];
+      }
+      name[N_LETTERS+1] = '\0';
+      status = EXIT_SUCCESS;
+   } else {
+      status = EXIT_FAILURE;
    }
-   temp = activateCDKEntry(entry, 0);
-   if (temp != NULL) {
-      strcpy(name, temp);
-   }
-   destroyCDKEntry(entry);
-}
 
-void cdkCleanUp(CDKSCREEN* cdkscreen){
-   destroyCDKScreenObjects(cdkscreen);
-   destroyCDKScreen (cdkscreen);
-   endCDK ();
+   /* Clean up. */
+   destroyCDKMatrix (charMatrix);
+   return status;
 }
