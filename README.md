@@ -29,6 +29,13 @@ A few Makefile commands:
 
 *Note: the first deployement usually takes a while considering that all the libraries need to be sent to the RPI.*
 
+## Using the GPIOs only
+Use the command 
+```
+sudo dtc -I dts -O dtb -o /boot/overlays/breadboard.dtbo ./assets/breadboard.dts
+```
+and restart to use a new input device. Each arrow GPIO will be mapped to a key on the keyboard.
+
 ## Demo
 :construction: Work in progress :construction:
 

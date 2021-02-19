@@ -52,37 +52,36 @@ int main() {
    CDKLABEL *header;
    WINDOW* subWindow;
 
-   const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Exit ", ""};
+   const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Shutdown ", ""};
    const char * local_loading_text = "Loading...";
    const char * online_loading_text = "Waiting for a second RPi - Not implemented";
    const char *list[1];
    list[0] = TITLE;
-   
+   int i = 0;
+   char name1[50];
+   char name2[50];
    int selected;
 
+   /* Initialize the terminal with ncurses and cdk */
    cdkscreen = initCDKScreen (NULL);
    curs_set(0); // hide cursor
-   /* Set up CDK Colors. */
-   initCDKColor ();
+   initCDKColor (); /* Set up CDK Colors. */
    init_color(FOREGROUND, 1000, 550, 0);
    init_pair(200, COLOR_BLACK, BACKGROUND);
    assume_default_colors(FOREGROUND, BACKGROUND);
    subWindow = newwin(HEIGHT, WIDTH, (LINES-HEIGHT)/2, (COLS-WIDTH)/2);
    refresh();
-
    cdkSubScreen = initCDKScreen(subWindow);
    
+   /* Title to be placed on top */
    header = newCDKLabel (cdkSubScreen, CENTER, TOP, (CDK_CSTRING2)list, 1, TRUE, FALSE);
    if (header != 0)
 	   activateCDKLabel (header, 0);
 
-   /* Create the scroll list. */
-   scroll = newCDKScroll (cdkSubScreen,CENTER,CENTER,RIGHT,LIST_SIZE+3,50,HELP, (CDK_CSTRING2) items,LIST_SIZE,
-      false, A_REVERSE, TRUE, TRUE);
-
+   /* Main menu */
+   scroll = newCDKScroll (cdkSubScreen,CENTER,CENTER,RIGHT,LIST_SIZE+3,50,HELP, (CDK_CSTRING2) items, LIST_SIZE, false, A_REVERSE, TRUE, TRUE);
    if (scroll == 0)
    {
-      /* Exit CDK. */
       destroyCDKScreen (cdkSubScreen);
       endCDK ();
 
@@ -92,17 +91,23 @@ int main() {
    }
    setCDKScrollCurrent(scroll, 1);
    setCDKScrollPostProcess(scroll, postProcessScroll, 0);
-   int i = 0;
-   char name1[50];
-   char name2[50];
+
+   /* Main menu treatment */
    while(i == 0){
       drawCDKScreen(cdkSubScreen);
       selected = activateCDKScroll (scroll, 0);
+      if (scroll->exitType == vESCAPE_HIT) {
+         i = 1;
+         continue;
+      }
       eraseCDKScreen(cdkSubScreen);
       switch (selected) {
       case LOCAL:
-         askForPlayer(cdkscreen, "Enter Player 1 name", name1);
-         askForPlayer(cdkscreen, "Enter Player 2 name", name2);
+         askForPlayers:
+         if (askForPlayer(cdkscreen, "<C>Enter Player 1 name\n<C><#LT><#HL(30)><#RT>", name1) == EXIT_FAILURE)
+            continue;
+         if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
+            goto askForPlayers;
          displayMarquee(cdkscreen, local_loading_text);
          SDL_Quarto ();
          break;
@@ -121,21 +126,18 @@ int main() {
          break;
       }
    }
-    
-     /* Clean up. */
+
+   /* Clean up. */
    destroyCDKScreenObjects(cdkscreen);
    destroyCDKScreen (cdkscreen);
    endCDK ();
    #ifndef BUILD_PC
-      int x,y;
-      getButton(&x,&y);
-      printf("X: %d, Y: %d\n", x, y);
+      system("shutdown -h now");
    #endif
    exit (EXIT_SUCCESS);
-
 }
 
-
+/* Play a quarto game */
 int SDL_Quarto (){
 
     SDL_Window *window = NULL;

@@ -59,26 +59,26 @@ build/QuartoRPI: $(OBJS_RPI)
 	$(RPI_COMPILER) $(CFLAGS_RPI) $(LDFLAGS_RPI) -o build/QuartoRPI $(OBJS_RPI)
 
 deploy: build/QuartoRPI .deployed .deployed-lib .deployed-assets
-	ssh $(RPI_ADDRESS) "export DISPLAY=:0; lxterminal --command=$(DEST_FOLDER)/assets/run.sh"
+	ssh $(RPI_ADDRESS) "export DISPLAY=:0; xterm -e sudo $(DEST_FOLDER)/assets/run.sh"
 
 deploy-lib: .deployed-lib
 
 deploy-assets: .deployed-assets
 
 deploy-here: .deployed .deployed-lib .deployed-assets
-	ssh -X $(RPI_ADDRESS) "lxterminal --command=$(DEST_FOLDER)/assets/run.sh"
+	ssh -X $(RPI_ADDRESS) "xterm -e sudo $(DEST_FOLDER)/assets/run.sh"
 
 .deployed: build/QuartoRPI
-	touch .deployed
 	rsync build/QuartoRPI $(RPI_ADDRESS):$(DEST_FOLDER)
+	touch .deployed
 
 .deployed-assets: assets/*
-	touch .deployed-assets
 	rsync -rauL assets/ $(RPI_ADDRESS):$(DEST_FOLDER)/assets
+	touch .deployed-assets
 
 .deployed-lib: | lib/rpi/*
-	touch .deployed-lib
 	rsync -rauL --info=progress2 lib/rpi/* $(RPI_ADDRESS):$(DEST_FOLDER)
+	touch .deployed-lib
 
 force:
 	make clean
