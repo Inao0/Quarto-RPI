@@ -4,5 +4,5 @@ export TERMINFO=/usr/share/terminfo
 export SDL_RENDER_DRIVER=software
 export TERM=xterm-88color
 #sleep 1
-/home/pi/QuartoRPI/QuartoRPI
+cd /home/pi/QuartoRPI/ && ./QuartoRPI
 read -p "Press Enter to close this window"
