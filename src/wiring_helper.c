@@ -1,19 +1,29 @@
+#ifndef BUILD_PC
 #include <stdio.h>
 #include <unistd.h>
-#ifndef BUILD_PC
+#include "wiringPi.h"
+#include "wiring_helper.h"
 
-#include "../lib/rpi/wiringPi/wiringPi/wiringPi.h"
-#include "../include/wiring_helper.h"
+/* 
+ * ---------------------------------
+ * A few helpful wiring Pi functions 
+ * ---------------------------------
+ */
 
 const int rows[] = {2,3,21,22};
 const int columns[] = {6,25,24,23};
 const int buttonIDs[4][4] = {{4,3,2,1},{8,7,6,5},{12,11,10,9},{16,15,14,13}};
 
+/* 
+ * Read from the SBC-matrix. 
+ * Place the coordinates of the first pressed button in x and y.
+ */
 void getButton(int *x, int *y){
     int i,j;
 
     wiringPiSetup();
 
+    /* Initialize the pins Mode */
     for (i = 0 ; i < 4 ; ++i){
         pinMode      (rows[i], INPUT) ;
         pullUpDnControl(rows[i], PUD_UP);
@@ -29,6 +39,8 @@ void getButton(int *x, int *y){
                     *x = i;
                     *y = j;
                     while (buttonHeldDown(i)) continue;
+
+                    /* place the pins in the input mode to support .dts layout */
                     for (i = 0 ; i < 4 ; ++i) {
                         pinMode(columns[i], INPUT);
                     }
@@ -40,6 +52,10 @@ void getButton(int *x, int *y){
     }
 }
 
+/* 
+ * Read continuously from the SBC-matrix. 
+ * (Does not work with the breadboard.dts layout)
+ */
 void displayButtons(){
     int i,j,col_scan;
 
@@ -68,6 +84,9 @@ void displayButtons(){
     }
 }
 
+/*
+ * Check if the pressed button is held down
+ */
 int buttonHeldDown(int i) {
     if (digitalRead(rows[i]) == 0) {
         return TRUE;
@@ -75,6 +94,9 @@ int buttonHeldDown(int i) {
     return FALSE;
 }
 
+/*
+ * Displays the number of the pressed button
+ */
 void activateButton(int rowPin, int colPin) {
     int btnIndex = buttonIDs[rowPin][colPin] - 1;
     printf("Button %d pressed\n", btnIndex);

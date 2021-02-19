@@ -57,32 +57,31 @@ int main() {
    const char * online_loading_text = "Waiting for a second RPi - Not implemented";
    const char *list[1];
    list[0] = TITLE;
-   
+   int i = 0;
+   char name1[50];
+   char name2[50];
    int selected;
 
+   /* Initialize the terminal with ncurses and cdk */
    cdkscreen = initCDKScreen (NULL);
    curs_set(0); // hide cursor
-   /* Set up CDK Colors. */
-   initCDKColor ();
+   initCDKColor (); /* Set up CDK Colors. */
    init_color(FOREGROUND, 1000, 550, 0);
    init_pair(200, COLOR_BLACK, BACKGROUND);
    assume_default_colors(FOREGROUND, BACKGROUND);
    subWindow = newwin(HEIGHT, WIDTH, (LINES-HEIGHT)/2, (COLS-WIDTH)/2);
    refresh();
-
    cdkSubScreen = initCDKScreen(subWindow);
    
+   /* Title to be placed on top */
    header = newCDKLabel (cdkSubScreen, CENTER, TOP, (CDK_CSTRING2)list, 1, TRUE, FALSE);
    if (header != 0)
 	   activateCDKLabel (header, 0);
 
-   /* Create the scroll list. */
-   scroll = newCDKScroll (cdkSubScreen,CENTER,CENTER,RIGHT,LIST_SIZE+3,50,HELP, (CDK_CSTRING2) items,LIST_SIZE,
-      false, A_REVERSE, TRUE, TRUE);
-
+   /* Main menu */
+   scroll = newCDKScroll (cdkSubScreen,CENTER,CENTER,RIGHT,LIST_SIZE+3,50,HELP, (CDK_CSTRING2) items, LIST_SIZE, false, A_REVERSE, TRUE, TRUE);
    if (scroll == 0)
    {
-      /* Exit CDK. */
       destroyCDKScreen (cdkSubScreen);
       endCDK ();
 
@@ -92,9 +91,8 @@ int main() {
    }
    setCDKScrollCurrent(scroll, 1);
    setCDKScrollPostProcess(scroll, postProcessScroll, 0);
-   int i = 0;
-   char name1[50];
-   char name2[50];
+
+   /* Main menu treatment */
    while(i == 0){
       drawCDKScreen(cdkSubScreen);
       selected = activateCDKScroll (scroll, 0);
@@ -139,7 +137,7 @@ int main() {
    exit (EXIT_SUCCESS);
 }
 
-
+/* Play a quarto game */
 int SDL_Quarto (){
 
     SDL_Window *window = NULL;

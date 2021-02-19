@@ -19,6 +19,7 @@
 #define N_LETTERS 3
 #define N_COLS 3
 
+/* Texts to be displayed in slide windows */
 char* about_text[] = {
    "<I=1>This is a student project for the UI lesson at Centrale Lille.","So it may be full of </B>bugs<!B> but don't let that impress you", "",
    "<I=1>The project was inspired by the original Quarto.","Go check it out ! It's even more fun with the board game.",
@@ -60,6 +61,16 @@ char* rules_text[] = {
    "all of which have a common attribute (all short, all circular, etc.)."
 };
 
+/*
+ * -----------------------------------
+ * A few helpful CDK helping functions
+ * -----------------------------------
+ */
+
+/*
+ * Callback function called on the scrolling menu
+ * It implements an infinite scrolling menu
+ */
 int postProcessScroll(__attribute__((unused)) EObjectType cdkType, void *object, __attribute__((unused)) void *clientData,chtype input){
    CDKSCROLL * scroll = (CDKSCROLL*) object;
    int current = getCDKScrollCurrent(scroll);
@@ -92,6 +103,10 @@ int postProcessScroll(__attribute__((unused)) EObjectType cdkType, void *object,
    return 0;
 }
 
+/*
+ * Display a sliding window with a title and a msg
+ * msg is of the form CDK_CSTRING2, and length has its size
+ */
 void displaySlide(CDKSCREEN* cdkScreen, int msg, int length, const char * title){
    CDKSWINDOW* swindow = newCDKSwindow(cdkScreen, CENTER, CENTER, 25, 85, title, 2, TRUE, FALSE);
    if (swindow == 0) {
@@ -110,6 +125,9 @@ void displaySlide(CDKSCREEN* cdkScreen, int msg, int length, const char * title)
    destroyCDKSwindow (swindow);
 }
 
+/*
+ * Displays an animation with a message
+ */
 void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
    CDKMARQUEE* marquee = newCDKMarquee(cdkScreen, CENTER, CENTER, 25, TRUE, TRUE);
    if (marquee == 0) {
@@ -124,6 +142,10 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
    destroyCDKMarquee(marquee);
 }
 
+/*
+ * Ask a player's name using a cdk_matrix.
+ * It is placed in the name variable.
+ */
 int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    CDKMATRIX *charMatrix = 0;
    int rows             = 1;
@@ -133,7 +155,6 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
 
    const char *coltitle[N_COLS] = {0};
    const char *rowtitle[N_COLS];
-   const char *mesg[3];
 
    int colwidth[N_COLS] = {1};
    int colvalue[N_COLS] = {vUMIXED};
@@ -145,11 +166,10 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    int status;
    int col_spacing = 0;
    int row_spacing = 0;
-
-   for (int i = 0; i < N_LETTERS+1; i++) {
+   /* the above initialization was not enough ¯\_(ツ)_/¯*/
+   for (int i = 0; i <= N_LETTERS; i++) {
       colwidth[i] = 1 ;
    }
-
    rowtitle[1] = "Pseudo:";
 
    /* Create the matrix object. */
@@ -164,12 +184,15 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
 			      FALSE,
 			      TRUE);
 
+   /* Fill the matrix with A */
    for (int i = 0; i < N_LETTERS + 1; i++) {
       setCDKMatrixCell(charMatrix, 1, i, "A");
    }
    
    drawCDKMatrix(charMatrix,TRUE);
    // a bit of a hack to quit widget at the right-most cell
+   // Normally, we would call activateCDKMatrix() but this was a blocking call
+   // and we needed to intercept the keys (a callback could not end the activateCDKMatrix() call)
    while (charMatrix->exitType != vNORMAL) {
       input = (chtype)getchCDKObject (ObjOf (charMatrix), &functionKey);
       currentValue = getCDKMatrixCell(charMatrix, charMatrix->crow, charMatrix->ccol);
@@ -202,6 +225,8 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
       drawCDKMatrix(charMatrix, TRUE);
       injectCDKMatrix (charMatrix, input);
    };
+
+   /* If the user pressed KEY_ENTER */
    if (charMatrix->exitType == vNORMAL) {
       for (int i = 1; i <= N_LETTERS; i++) {
          currentValue = getCDKMatrixCell(charMatrix, 1, i);
