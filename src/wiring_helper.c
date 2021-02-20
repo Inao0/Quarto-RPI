@@ -21,7 +21,6 @@ const int buttonIDs[4][4] = {{4,3,2,1},{8,7,6,5},{12,11,10,9},{16,15,14,13}};
 void getButton(int *x, int *y){
     int i,j;
     int button_pressed = 0;
-    int buttons_not_released = 1;
     wiringPiSetup();
 
     /* Initialize the pins Mode */
@@ -41,10 +40,7 @@ void getButton(int *x, int *y){
                     *y = j;
                     while (buttonHeldDown(i)) continue;
 
-                    /* place the pins in the input mode to support .dts layout */
-                    for (i = 0 ; i < 4 ; ++i) {
-                        pinMode(columns[i], INPUT);
-                    }
+                    resetPins();
                     return;
                 }
             }
@@ -58,7 +54,7 @@ void getButton(int *x, int *y){
  * (Does not work with the breadboard.dts layout)
  */
 void displayButtons(){
-    int i,j,col_scan;
+    int i,j;
 
     wiringPiSetup();
 
@@ -102,6 +98,16 @@ void activateButton(int rowPin, int colPin) {
     int btnIndex = buttonIDs[rowPin][colPin] - 1;
     printf("Button %d pressed\n", btnIndex);
     usleep(300000);
+}
+
+/* 
+ * Place the pins in the input mode to support .dts overlay
+  */
+void resetPins(){
+    for (int i = 0 ; i < 4 ; ++i) {
+        pinMode(columns[i], INPUT);
+    }
+    pinMode(0, INPUT);
 }
 
 #endif

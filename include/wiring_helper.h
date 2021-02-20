@@ -23,5 +23,10 @@ int buttonHeldDown(int i);
  * Displays the number of the pressed button
  */
 void activateButton(int rowPin, int colPin);
+
+/*
+ * Place the pins in the input mode to support .dts overlay
+ */
+void resetPins();
 #endif
 #endif

@@ -128,8 +128,14 @@ void displaySlide(CDKSCREEN* cdkScreen, int msg, int length, const char * title)
 /*
  * Displays an animation with a message
  */
-void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
+void displayMarquee(CDKSCREEN* cdkScreen, const char* msg, char * name){
    CDKMARQUEE* marquee = newCDKMarquee(cdkScreen, CENTER, CENTER, 25, TRUE, TRUE);
+   char temp[80];
+   char * text[80];
+   sprintf (temp, "<L>Get ready Player </R></K>%s<!R>        ", name);
+   text[0] = temp;
+   text[1] = "<R>     you're first to play !";
+   CDKLABEL* label = newCDKLabel(cdkScreen, CENTER, TOP, (CDK_CSTRING2) text, 2, TRUE, FALSE);
    if (marquee == 0) {
       /* Exit CDK. */
       destroyCDKScreen (cdkScreen);
@@ -138,8 +144,10 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
       printf ("Is the window too small?\n");
       exit (EXIT_FAILURE);
    }
+   activateCDKLabel(label, 0);
    activateCDKMarquee(marquee, msg, 10, 1, TRUE);
    destroyCDKMarquee(marquee);
+   destroyCDKLabel(label);
 }
 
 /*
@@ -164,8 +172,8 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    char *currentValue;
    char newValue;
    int status;
-   int col_spacing = 0;
-   int row_spacing = 0;
+   int col_spacing = -1;
+   int row_spacing = -1;
    /* the above initialization was not enough ¯\_(ツ)_/¯*/
    for (int i = 0; i <= N_LETTERS; i++) {
       colwidth[i] = 1 ;
@@ -232,7 +240,7 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
          currentValue = getCDKMatrixCell(charMatrix, 1, i);
          name[i-1] = currentValue[0];
       }
-      name[N_LETTERS+1] = '\0';
+      name[N_LETTERS] = '\0';
       status = EXIT_SUCCESS;
    } else {
       status = EXIT_FAILURE;
@@ -241,4 +249,41 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    /* Clean up. */
    destroyCDKMatrix (charMatrix);
    return status;
+}
+
+/*
+ * Displays a message to congratulate the winner.
+ */
+void showWinner(CDKSCREEN* screen, int winner, char *name1, char *name2) {
+   const char *mesg[80];
+   char temp1[80];
+   char temp2[80];
+
+   sprintf (temp1, "<C>  <#VL>Player </K/11>%s<!K><!11> won brilliantly !<#VL>  ", (winner == 1) ? name1 : name2);
+   sprintf (temp2, "Player %s did good too.", (winner == 1) ? name2 : name1);
+   
+   mesg[0] = "End of the game...";
+   mesg[1] = "";
+   mesg[2] = "<C><#UL><#HL(28)><#UR>";
+   mesg[3] = temp1;
+   mesg[4] = "<C><#LL><#HL(28)><#LR>";
+   mesg[5] = "";
+   mesg[6] = temp2;
+   mesg[7] = "<C><#HL(10)>";
+   mesg[8] = "<C>Press any key to continue.";
+   popupLabel (screen, (CDK_CSTRING2)mesg, 9);
+}
+
+/*
+ * Displays a message in case of ex aequo.
+ */
+void showExAequo(CDKSCREEN* screen) {
+   const char *mesg[80];
+   mesg[0] = "End of the game...";
+   mesg[1] = "";
+   mesg[2] = "<C>None of you came on top.";
+   mesg[3] = "<C>But what a game it was !";
+   mesg[4] = "";
+   mesg[5] = "<C>Press any key to continue.";
+   popupLabel (screen, (CDK_CSTRING2)mesg, 6);
 }

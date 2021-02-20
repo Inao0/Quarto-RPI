@@ -60,7 +60,7 @@ int main() {
     const char *online_loading_text = "Waiting for a second RPi - Not implemented";
     const char *list[1];
     list[0] = TITLE;
-    int i = 0;
+    int willExit = 0;
     char name1[50];
     char name2[50];
     int selected;
@@ -97,11 +97,11 @@ int main() {
     setCDKScrollPostProcess(scroll, postProcessScroll, 0);
 
     /* Main menu treatment */
-    while (i == 0) {
+    while (willExit == 0) {
         drawCDKScreen(cdkSubScreen);
         selected = activateCDKScroll(scroll, 0);
         if (scroll->exitType == vESCAPE_HIT) {
-            i = 1;
+            willExit = 1;
             continue;
         }
         eraseCDKScreen(cdkSubScreen);
@@ -112,12 +112,17 @@ int main() {
                     continue;
                 if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
                     goto askForPlayers;
-                displayMarquee(cdkscreen, local_loading_text);
+                displayMarquee(cdkSubScreen, local_loading_text, name1);
                 SDL_Quarto(&winner);
+                if (winner != 0) {
+                  showWinner(cdkscreen, winner, name1, name2);
+                } else {
+                   showExAequo(cdkscreen);
+                }
                 break;
             case ONLINE:
                 askForPlayer(cdkscreen, "Enter your name", name1);
-                displayMarquee(cdkscreen, online_loading_text);
+                displayMarquee(cdkSubScreen, online_loading_text, name1);
                 break;
             case RULES:
                 displaySlide(cdkscreen, RULES, 13, "<C></B/U/D>Rules (Short, I promise)<!D>");
@@ -126,7 +131,7 @@ int main() {
                 displaySlide(cdkscreen, ABOUT, 29, "<C></B/U/D>About QuartoRpi<!D>");
                 break;
             case EXIT:
-                i = 1;
+                willExit = 1;
                 break;
         }
     }
@@ -193,7 +198,9 @@ int SDL_Quarto(int *winner) {
     while (victory_condition == 0 && compteur < 16) {
         while (next_pawn == 0) {
             //sleep(1);
+            #ifndef BUILD_PC
             getButton(&j, &i);
+            #endif
             next_pawn = remaining_pawns[i][j];
             remaining_pawns[i][j] = 0;
         }
@@ -202,7 +209,9 @@ int SDL_Quarto(int *winner) {
 
         while (next_pawn > 0) {
             //sleep(1);
+            #ifndef BUILD_PC
             getButton(&j, &i);
+            #endif
             if (quarto_board[i][j] == 0) {
                 quarto_board[i][j] = next_pawn;
                 next_pawn = 0;
