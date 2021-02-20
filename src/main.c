@@ -60,7 +60,7 @@ int main() {
     const char *online_loading_text = "Waiting for a second RPi - Not implemented";
     const char *list[1];
     list[0] = TITLE;
-    int i = 0;
+    int willExit = 0;
     char name1[50];
     char name2[50];
     int selected;
@@ -97,11 +97,11 @@ int main() {
     setCDKScrollPostProcess(scroll, postProcessScroll, 0);
 
     /* Main menu treatment */
-    while (i == 0) {
+    while (willExit == 0) {
         drawCDKScreen(cdkSubScreen);
         selected = activateCDKScroll(scroll, 0);
         if (scroll->exitType == vESCAPE_HIT) {
-            i = 1;
+            willExit = 1;
             continue;
         }
         eraseCDKScreen(cdkSubScreen);
@@ -114,6 +114,11 @@ int main() {
                     goto askForPlayers;
                 displayMarquee(cdkscreen, local_loading_text);
                 SDL_Quarto(&winner);
+                if (winner != 0) {
+                  showWinner(cdkscreen, winner, name1, name2);
+                } else {
+                   showExAequo(cdkscreen);
+                }
                 break;
             case ONLINE:
                 askForPlayer(cdkscreen, "Enter your name", name1);
@@ -126,7 +131,7 @@ int main() {
                 displaySlide(cdkscreen, ABOUT, 29, "<C></B/U/D>About QuartoRpi<!D>");
                 break;
             case EXIT:
-                i = 1;
+                willExit = 1;
                 break;
         }
     }
