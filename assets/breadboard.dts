@@ -31,11 +31,6 @@
                    linux,code = <28>;
                    gpios = <&gpio 19 1>;
                 };
-                button@17 {
-                   label = "breadboard esc";
-                   linux,code = <1>;
-                   gpios = <&gpio 17 0>;
-                };
              };
           };
        };
