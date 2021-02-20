@@ -45,102 +45,104 @@
     exit (EXIT_FAILURE);                            \
   }
 
-int SDL_Quarto();
+int SDL_Quarto(int *winner);
 
 int main() {
 
-   CDKSCREEN *cdkscreen, *cdkSubScreen;
-   CDKSCROLL *scroll = 0;
-   CDKLABEL *header;
-   WINDOW* subWindow;
+    CDKSCREEN *cdkscreen, *cdkSubScreen;
+    CDKSCROLL *scroll = 0;
+    CDKLABEL *header;
+    WINDOW *subWindow;
 
-   const char *items[] = {""," <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "", " <#DI> About ", "", " <#DI> Shutdown ", ""};
-   const char * local_loading_text = "Loading...";
-   const char * online_loading_text = "Waiting for a second RPi - Not implemented";
-   const char *list[1];
-   list[0] = TITLE;
-   int i = 0;
-   char name1[50];
-   char name2[50];
-   int selected;
+    const char *items[] = {"", " <#DI> New local game ", "", " <#DI> New online game ", "", " <#DI> Rules ", "",
+                           " <#DI> About ", "", " <#DI> Shutdown ", ""};
+    const char *local_loading_text = "Loading...";
+    const char *online_loading_text = "Waiting for a second RPi - Not implemented";
+    const char *list[1];
+    list[0] = TITLE;
+    int i = 0;
+    char name1[50];
+    char name2[50];
+    int selected;
+    int winner;
 
-   /* Initialize the terminal with ncurses and cdk */
-   cdkscreen = initCDKScreen (NULL);
-   curs_set(0); // hide cursor
-   initCDKColor (); /* Set up CDK Colors. */
-   init_color(FOREGROUND, 1000, 550, 0);
-   init_pair(200, COLOR_BLACK, BACKGROUND);
-   assume_default_colors(FOREGROUND, BACKGROUND);
-   subWindow = newwin(HEIGHT, WIDTH, (LINES-HEIGHT)/2, (COLS-WIDTH)/2);
-   refresh();
-   cdkSubScreen = initCDKScreen(subWindow);
-   
-   /* Title to be placed on top */
-   header = newCDKLabel (cdkSubScreen, CENTER, TOP, (CDK_CSTRING2)list, 1, TRUE, FALSE);
-   if (header != 0)
-	   activateCDKLabel (header, 0);
+    /* Initialize the terminal with ncurses and cdk */
+    cdkscreen = initCDKScreen(NULL);
+    curs_set(0); // hide cursor
+    initCDKColor(); /* Set up CDK Colors. */
+    init_color(FOREGROUND, 1000, 550, 0);
+    init_pair(200, COLOR_BLACK, BACKGROUND);
+    assume_default_colors(FOREGROUND, BACKGROUND);
+    subWindow = newwin(HEIGHT, WIDTH, (LINES - HEIGHT) / 2, (COLS - WIDTH) / 2);
+    refresh();
+    cdkSubScreen = initCDKScreen(subWindow);
 
-   /* Main menu */
-   scroll = newCDKScroll (cdkSubScreen,CENTER,CENTER,RIGHT,LIST_SIZE+3,50,HELP, (CDK_CSTRING2) items, LIST_SIZE, false, A_REVERSE, TRUE, TRUE);
-   if (scroll == 0)
-   {
-      destroyCDKScreen (cdkSubScreen);
-      endCDK ();
+    /* Title to be placed on top */
+    header = newCDKLabel(cdkSubScreen, CENTER, TOP, (CDK_CSTRING2) list, 1, TRUE, FALSE);
+    if (header != 0)
+        activateCDKLabel(header, 0);
 
-      printf ("Cannot create the scroll list.\n");
-      printf ("Is the window too small?\n");
-      exit (EXIT_FAILURE);
-   }
-   setCDKScrollCurrent(scroll, 1);
-   setCDKScrollPostProcess(scroll, postProcessScroll, 0);
+    /* Main menu */
+    scroll = newCDKScroll(cdkSubScreen, CENTER, CENTER, RIGHT, LIST_SIZE + 3, 50, HELP, (CDK_CSTRING2) items, LIST_SIZE,
+                          false, A_REVERSE, TRUE, TRUE);
+    if (scroll == 0) {
+        destroyCDKScreen(cdkSubScreen);
+        endCDK();
 
-   /* Main menu treatment */
-   while(i == 0){
-      drawCDKScreen(cdkSubScreen);
-      selected = activateCDKScroll (scroll, 0);
-      if (scroll->exitType == vESCAPE_HIT) {
-         i = 1;
-         continue;
-      }
-      eraseCDKScreen(cdkSubScreen);
-      switch (selected) {
-      case LOCAL:
-         askForPlayers:
-         if (askForPlayer(cdkscreen, "<C>Enter Player 1 name\n<C><#LT><#HL(30)><#RT>", name1) == EXIT_FAILURE)
+        printf("Cannot create the scroll list.\n");
+        printf("Is the window too small?\n");
+        exit(EXIT_FAILURE);
+    }
+    setCDKScrollCurrent(scroll, 1);
+    setCDKScrollPostProcess(scroll, postProcessScroll, 0);
+
+    /* Main menu treatment */
+    while (i == 0) {
+        drawCDKScreen(cdkSubScreen);
+        selected = activateCDKScroll(scroll, 0);
+        if (scroll->exitType == vESCAPE_HIT) {
+            i = 1;
             continue;
-         if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
-            goto askForPlayers;
-         displayMarquee(cdkscreen, local_loading_text);
-         SDL_Quarto ();
-         break;
-      case ONLINE:
-         askForPlayer(cdkscreen, "Enter your name", name1);
-         displayMarquee(cdkscreen, online_loading_text);
-         break;
-      case RULES:
-         displaySlide(cdkscreen, RULES, 13, "<C></B/U/D>Rules (Short, I promise)<!D>");
-         break;
-      case ABOUT:
-         displaySlide(cdkscreen, ABOUT, 29, "<C></B/U/D>About QuartoRpi<!D>");
-         break;
-      case EXIT:
-         i = 1;
-         break;
-      }
-   }
+        }
+        eraseCDKScreen(cdkSubScreen);
+        switch (selected) {
+            case LOCAL:
+            askForPlayers:
+                if (askForPlayer(cdkscreen, "<C>Enter Player 1 name\n<C><#LT><#HL(30)><#RT>", name1) == EXIT_FAILURE)
+                    continue;
+                if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
+                    goto askForPlayers;
+                displayMarquee(cdkscreen, local_loading_text);
+                SDL_Quarto(&winner);
+                break;
+            case ONLINE:
+                askForPlayer(cdkscreen, "Enter your name", name1);
+                displayMarquee(cdkscreen, online_loading_text);
+                break;
+            case RULES:
+                displaySlide(cdkscreen, RULES, 13, "<C></B/U/D>Rules (Short, I promise)<!D>");
+                break;
+            case ABOUT:
+                displaySlide(cdkscreen, ABOUT, 29, "<C></B/U/D>About QuartoRpi<!D>");
+                break;
+            case EXIT:
+                i = 1;
+                break;
+        }
+    }
 
-   /* Clean up. */
-   destroyCDKScreenObjects(cdkscreen);
-   destroyCDKScreen (cdkscreen);
-   endCDK ();
-   #ifndef BUILD_PC
-      system("shutdown -h now");
-   #endif
-   exit (EXIT_SUCCESS);
+    /* Clean up. */
+    destroyCDKScreenObjects(cdkscreen);
+    destroyCDKScreen(cdkscreen);
+    endCDK();
+#ifndef BUILD_PC
+    system("shutdown -h now");
+#endif
+    exit(EXIT_SUCCESS);
 }
 
 /* Play a quarto game */
-int SDL_Quarto (){
+int SDL_Quarto(int *winner) {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     int statut = EXIT_FAILURE;
@@ -151,7 +153,6 @@ int SDL_Quarto (){
     initialise_game(quarto_board, remaining_pawns);
 
     // SDL_Color variables
-    SDL_Color orange = {255, 140, 0, 255};
     SDL_Color light_orange = {255, 215, 167, 255};
 
     // Message variables
@@ -185,18 +186,16 @@ int SDL_Quarto (){
 
     int compteur = 0;
     int i, j;
-    int i_t, j_t;
-    int victory_condition=0;
-    int button_up = 0;
+    int victory_condition = 0;
+
 
     //while personne n'a gagné :
-    while (victory_condition==0 && compteur < 7) {
+    while (victory_condition == 0 && compteur < 16) {
         while (next_pawn == 0) {
             //sleep(1);
             getButton(&j, &i);
             next_pawn = remaining_pawns[i][j];
             remaining_pawns[i][j] = 0;
-            button_up = 0;
         }
         draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
                   NUMBER_OF_SDL_MESSAGES);
@@ -208,7 +207,6 @@ int SDL_Quarto (){
                 quarto_board[i][j] = next_pawn;
                 next_pawn = 0;
             }
-            button_up = 0;
         }
         draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
                   NUMBER_OF_SDL_MESSAGES);
@@ -216,10 +214,14 @@ int SDL_Quarto (){
         victory_condition = victory(quarto_board);
         compteur++;
     }
-    draw_victory(renderer,victory_condition);
-
+    if (victory_condition) {
+        draw_victory(renderer, victory_condition);
+        *winner = 1 + (compteur % 2);
+    } else {
+        *winner = 0;
+    }
     statut = EXIT_SUCCESS;
-    SDL_Delay(10000);
+    SDL_Delay(5000);
 
 
     for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
