@@ -112,7 +112,7 @@ int main() {
                     continue;
                 if (askForPlayer(cdkscreen, "<C>Enter Player 2 name\n<C><#LT><#HL(30)><#RT>", name2) == EXIT_FAILURE)
                     goto askForPlayers;
-                displayMarquee(cdkscreen, local_loading_text);
+                displayMarquee(cdkSubScreen, local_loading_text, name1);
                 SDL_Quarto(&winner);
                 if (winner != 0) {
                   showWinner(cdkscreen, winner, name1, name2);
@@ -122,7 +122,7 @@ int main() {
                 break;
             case ONLINE:
                 askForPlayer(cdkscreen, "Enter your name", name1);
-                displayMarquee(cdkscreen, online_loading_text);
+                displayMarquee(cdkSubScreen, online_loading_text, name1);
                 break;
             case RULES:
                 displaySlide(cdkscreen, RULES, 13, "<C></B/U/D>Rules (Short, I promise)<!D>");
@@ -198,7 +198,9 @@ int SDL_Quarto(int *winner) {
     while (victory_condition == 0 && compteur < 16) {
         while (next_pawn == 0) {
             //sleep(1);
+            #ifndef BUILD_PC
             getButton(&j, &i);
+            #endif
             next_pawn = remaining_pawns[i][j];
             remaining_pawns[i][j] = 0;
         }
@@ -207,7 +209,9 @@ int SDL_Quarto(int *winner) {
 
         while (next_pawn > 0) {
             //sleep(1);
+            #ifndef BUILD_PC
             getButton(&j, &i);
+            #endif
             if (quarto_board[i][j] == 0) {
                 quarto_board[i][j] = next_pawn;
                 next_pawn = 0;

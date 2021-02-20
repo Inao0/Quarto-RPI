@@ -16,7 +16,7 @@ void displaySlide(CDKSCREEN* cdkScreen, int msg, int length, const char* title);
 /*
  * Displays an animation with a message
  */
-void displayMarquee(CDKSCREEN* cdkScreen, const char* msg);
+void displayMarquee(CDKSCREEN* cdkScreen, const char* msg, char * name);
 
 /*
  * Ask a player's name using a cdk_matrix.

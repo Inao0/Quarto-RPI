@@ -24,9 +24,9 @@ int buttonHeldDown(int i);
  */
 void activateButton(int rowPin, int colPin);
 
-/* 
+/*
  * Place the pins in the input mode to support .dts overlay
-  */
+ */
 void resetPins();
 #endif
 #endif

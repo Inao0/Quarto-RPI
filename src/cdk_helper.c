@@ -128,8 +128,14 @@ void displaySlide(CDKSCREEN* cdkScreen, int msg, int length, const char * title)
 /*
  * Displays an animation with a message
  */
-void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
+void displayMarquee(CDKSCREEN* cdkScreen, const char* msg, char * name){
    CDKMARQUEE* marquee = newCDKMarquee(cdkScreen, CENTER, CENTER, 25, TRUE, TRUE);
+   char temp[80];
+   char * text[80];
+   sprintf (temp, "<L>Get ready Player </R></K>%s<!R>        ", name);
+   text[0] = temp;
+   text[1] = "<R>     you're first to play !";
+   CDKLABEL* label = newCDKLabel(cdkScreen, CENTER, TOP, (CDK_CSTRING2) text, 2, TRUE, FALSE);
    if (marquee == 0) {
       /* Exit CDK. */
       destroyCDKScreen (cdkScreen);
@@ -138,8 +144,10 @@ void displayMarquee(CDKSCREEN* cdkScreen, const char* msg){
       printf ("Is the window too small?\n");
       exit (EXIT_FAILURE);
    }
+   activateCDKLabel(label, 0);
    activateCDKMarquee(marquee, msg, 10, 1, TRUE);
    destroyCDKMarquee(marquee);
+   destroyCDKLabel(label);
 }
 
 /*
@@ -153,7 +161,7 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    int vrows            = 1;
    int vcols            = N_LETTERS;
 
-   const char *coltitle[N_COLS];
+   const char *coltitle[N_COLS] = {0};
    const char *rowtitle[N_COLS];
 
    int colwidth[N_COLS] = {1};
@@ -169,8 +177,6 @@ int askForPlayer(CDKSCREEN* cdkscreen, const char *title, char * name){
    /* the above initialization was not enough ¯\_(ツ)_/¯*/
    for (int i = 0; i <= N_LETTERS; i++) {
       colwidth[i] = 1 ;
-      rowtitle[i] = "";
-      coltitle[i] = "";
    }
    rowtitle[1] = "Pseudo:";
 
