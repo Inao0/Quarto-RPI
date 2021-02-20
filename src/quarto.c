@@ -20,8 +20,9 @@ int victory(signed char quarto_board[4][4]) {
 }
 
 int match(signed char a, signed char b, signed char c, signed char d) {
+    // Si des pions sont bien présent sur toutes les cases
     if (a & b & c & d & 0x10) {
-        //printf("%X\n",((~((a ^ b) | (a ^ c) | (a ^ d))) & 0x0F));
+        // Si les pions ont au moins une caractéristique en commun
         if (((~((a ^ b) | (a ^ c) | (a ^ d))) & 0x0F) > 0) {
             return (1);
         }
