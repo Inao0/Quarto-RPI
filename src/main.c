@@ -146,28 +146,33 @@ int main() {
     exit(EXIT_SUCCESS);
 }
 
-/* Play a quarto game */
+/* input : an int pointer
+ *
+ * Play a quarto game
+ * Set the value at the winner pointer address to the id of the winning player assuming player 1 selected the first pawn
+ */
 int SDL_Quarto(int *winner) {
+
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     int statut = EXIT_FAILURE;
     signed char quarto_board[4][4];
     signed char remaining_pawns[4][4];
     signed char next_pawn = 0;
-
-    initialise_game(quarto_board, remaining_pawns);
-
-    // SDL_Color variables
+    int compteur = 0;
+    int i, j;
+    int victory_condition = 0;
     SDL_Color light_orange = {255, 215, 167, 255};
-
-    // Message variables
     SDL_Rect messages_rect[NUMBER_OF_SDL_MESSAGES];
     SDL_Texture *messages_textures[NUMBER_OF_SDL_MESSAGES];
 
+    // Initialising the quarto board and the remaining pawns
+    initialise_game(quarto_board, remaining_pawns);
+
+    // Initialising/loading all required SDL elements (window, renderer, font)
     SDL_CHECK(SDL_Init(SDL_INIT_VIDEO), "Erreur SDL_Init");
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               1920, 1080, SDL_WINDOW_FULLSCREEN);
-    //SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     SDL_CHECK(window == NULL, "Erreur SDL_CreateWindow");
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_CHECK(NULL == renderer, "Erreur SDL_CreateRenderer");
@@ -175,40 +180,38 @@ int SDL_Quarto(int *winner) {
     TTF_Font *Sans = TTF_OpenFont("./assets/Moonglade.ttf", 60); //this opens a font style and sets a size
     SDL_TTF_CHECK(TTF_Init() == -1, "TTF_OpenFont");
 
+    // Initialising the three text to be displayed
     initialise_messages(renderer, Sans, messages_textures, messages_rect);
 
+    // Draw the ligth orange background
     SDL_CHECK(SDL_SetRenderDrawColor(renderer, light_orange.r, light_orange.g, light_orange.b, light_orange.a),
               "Erreur SDL_SetRenderDrawColor");
     SDL_CHECK(SDL_RenderClear(renderer), "Erreur SDL_RenderClear");
     SDL_RenderPresent(renderer);
-//    for (int i = 0; i < NUMBER_OF_SDL_MESSAGES; ++i) {
-//        printf("Rectangle %d %d %d\n", messages_rect[i].x, messages_rect[i].y, messages_rect[i].h);
-//    }
 
-
+    // Draw the game in its initial position
     draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
               NUMBER_OF_SDL_MESSAGES);
 
-    int compteur = 0;
-    int i, j;
-    int victory_condition = 0;
-
-
-    //while personne n'a gagné :
+    //while no one has won and there is a pawn left :
     while (victory_condition == 0 && compteur < 16) {
+        // We get the next pawn to be placed from a player
         while (next_pawn == 0) {
-            //sleep(1);
             #ifndef BUILD_PC
+            // getButton is blocking. It returns only when a button has been pressed and released.
             getButton(&j, &i);
             #endif
             next_pawn = remaining_pawns[i][j];
             remaining_pawns[i][j] = 0;
         }
+        // We render the game
         draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
                   NUMBER_OF_SDL_MESSAGES);
 
+        // Player change here
+
+        // We get were to place the currently selected pawn
         while (next_pawn > 0) {
-            //sleep(1);
             #ifndef BUILD_PC
             getButton(&j, &i);
             #endif
@@ -220,16 +223,23 @@ int SDL_Quarto(int *winner) {
         draw_game(renderer, quarto_board, remaining_pawns, next_pawn, messages_rect, messages_textures,
                   NUMBER_OF_SDL_MESSAGES);
 
+        // We check for a victory
         victory_condition = victory(quarto_board);
         compteur++;
     }
-    if (victory_condition) {
+    // If someone has won,
+    if (victory_condition)
+    {
+        // We draw the green line on the four winning pawns
         draw_victory(renderer, victory_condition);
+        // we set the winner parameter to the id of the player that won (assuming player one select the first pawn)
         *winner = 1 + (compteur % 2);
     } else {
         *winner = 0;
     }
+
     statut = EXIT_SUCCESS;
+    // We keep the board displayed for five seconds before closing the SDL window
     SDL_Delay(5000);
 
 
